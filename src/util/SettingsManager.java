@@ -52,14 +52,12 @@ public class SettingsManager {
         DoubleDouble imag;
         try {
             real = new DoubleDouble(PositionTab.instance.positionRealComboBox.getText());
-//            System.out.println("real: " + real);
         } catch (NumberFormatException e) {
             real = new DoubleDouble(RenderPanel.instance.center.r);
             PositionTab.instance.positionRealComboBox.setText(real.toString());
         }
         try {
             imag = new DoubleDouble(PositionTab.instance.positionImaginaryComboBox.getText());
-//            System.out.println("imag: " + imag);
         } catch (NumberFormatException e) {
             imag = new DoubleDouble(RenderPanel.instance.center.i);
             PositionTab.instance.positionRealComboBox.setText(imag.toString());

@@ -81,8 +81,6 @@ public class RenderPanel extends JPanel implements MouseListener {
             bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
 
-//        ColorPalette palette = SettingsManager.getColorPalette();
-
         RenderingManagerThread renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
                 SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(),0, 0, width, height);
 
@@ -104,7 +102,6 @@ public class RenderPanel extends JPanel implements MouseListener {
         }
 
         RenderingManagerThread renderingManagerThread;
-//        System.out.println(center.r.toString() + " " + center.i.toString());
         switch(dir) {
             case RIGHT:
                 bufferedImage = shiftImage(bufferedImage, p, 0);
@@ -136,30 +133,22 @@ public class RenderPanel extends JPanel implements MouseListener {
     }
 
     public void moveRight(int pixels) {
-//        Complex center = SettingsManager.getCenter();
         SettingsManager.setCenter(new Complex(center.r.add(pixelsToPlaneLength(pixels)), center.i));
         shiftRender(Direction.LEFT, pixels);
     }
 
     public void moveLeft(int pixels) {
-//        Complex center = ;
-//        System.out.println(center.r.toString() + " " + center.i.toString());
         SettingsManager.setCenter(new Complex(center.r.subtract(pixelsToPlaneLength(pixels)), center.i));
-//        center.r = center.r.subtract(pixelsToPlaneLength(pixels));
         shiftRender(Direction.RIGHT, pixels);
     }
 
     public void moveUp(int pixels) {
-//        Complex center = SettingsManager.getCenter();
         SettingsManager.setCenter(new Complex(center.r, center.i.subtract(pixelsToPlaneLength(pixels))));
-//        center.i = center.i.subtract(pixelsToPlaneLength(pixels));
         shiftRender(Direction.DOWN, pixels);
     }
 
     public void moveDown(int pixels) {
-//        Complex center = SettingsManager.getCenter();
         SettingsManager.setCenter(new Complex(center.r, center.i.add(pixelsToPlaneLength(pixels))));
-//        center.i = center.i.add(pixelsToPlaneLength(pixels));
         shiftRender(Direction.UP, pixels);
     }
 

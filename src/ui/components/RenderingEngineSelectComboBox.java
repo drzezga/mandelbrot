@@ -10,7 +10,7 @@ public class RenderingEngineSelectComboBox extends JPanel {
 
     public HashMap<String, ThreadType> threadHashMap = new HashMap<>();
 
-    public JComboBox comboBox;
+    public JComboBox<Object> comboBox;
 
     public RenderingEngineSelectComboBox() {
         threadHashMap.put("Double Double", ThreadType.DOUBLEDOUBLE);
@@ -22,7 +22,7 @@ public class RenderingEngineSelectComboBox extends JPanel {
 
         threadHashMap.forEach((k, v) -> comboBoxValues.add(k));
 
-        comboBox = new JComboBox(comboBoxValues.toArray());
+        comboBox = new JComboBox<>(comboBoxValues.toArray());
 
         comboBox.setSelectedItem("Float");
 
