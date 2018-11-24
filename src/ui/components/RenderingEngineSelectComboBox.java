@@ -14,6 +14,7 @@ public class RenderingEngineSelectComboBox extends JPanel {
 
     public RenderingEngineSelectComboBox() {
         threadHashMap.put("Double Double", ThreadType.DOUBLEDOUBLE);
+        threadHashMap.put("Double", ThreadType.DOUBLE);
         threadHashMap.put("Float", ThreadType.FLOAT);
         threadHashMap.put("Palette", ThreadType.PALETTE);
 

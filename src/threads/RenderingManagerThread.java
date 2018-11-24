@@ -64,17 +64,18 @@ public class RenderingManagerThread extends Thread {
             switch (threadType) {
                 case FLOAT:
                     renderingThreads[i] = new FloatRenderingThread(this);
-                    renderingThreads[i].start();
                     break;
                 case DOUBLEDOUBLE:
                     renderingThreads[i] = new DoubleDoubleRenderingThread(this);
-                    renderingThreads[i].start();
                     break;
                 case PALETTE:
                     renderingThreads[i] = new PaletteRenderingThread(this);
-                    renderingThreads[i].start();
+                    break;
+                case DOUBLE:
+                    renderingThreads[i] = new DoubleRenderingThread(this);
                     break;
             }
+            renderingThreads[i].start();
         }
 
         while (areThreadsRunning()) {
