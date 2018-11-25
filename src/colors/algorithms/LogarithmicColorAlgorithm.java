@@ -12,10 +12,10 @@ public class LogarithmicColorAlgorithm extends ColorAlgorithm {
 
     @Override
     public Color calculate(float n, Complex z, int threshold) {
-        double nu = n - Math.log(Math.log(n));
         if (n == threshold) {
             return new Color(0);
         }
+        double nu = n - Math.log(Math.log(n));
         int index = (int) (nu * 10) % palette.colors.length;
 
         return palette.get(index);

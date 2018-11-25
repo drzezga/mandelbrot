@@ -22,7 +22,14 @@ public class DoubleRenderingThread extends RenderingThread {
 
         int n = calculateMandelbrot(cr, ci, renderData.threshold);
 
-        Color color = renderData.colorAlgorithm.calculate(n, new Complex(), renderData.threshold);
+
+        Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold);
+//        if (cr > -0.01 && cr < 0.01) {
+//            color = Color.RED;
+//        }
+//        else if (ci > -0.01 && ci < 0.01) {
+//            color = Color.RED;
+//        }
 
         parent.setPixel(renderData.x, renderData.y, color);
 

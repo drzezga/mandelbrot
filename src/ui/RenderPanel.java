@@ -3,7 +3,6 @@ package ui;
 import com.sun.javafx.scene.traversal.Direction;
 import threads.RenderingManagerThread;
 import util.Complex;
-import util.DoubleDouble;
 import util.SettingsManager;
 
 import javax.swing.*;
@@ -11,8 +10,9 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
 
-import static threads.DoubleDoubleRenderingThread.map;
+import static threads.BigDecimalRenderingThread.map;
 
 public class RenderPanel extends JPanel implements MouseListener {
 
@@ -20,7 +20,7 @@ public class RenderPanel extends JPanel implements MouseListener {
 
     // Changeable variables
     public int threshold;
-    public Complex center = new Complex(new DoubleDouble(-0.5), new DoubleDouble(0));
+    public Complex center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
     public double scale;
 
     private int width;
@@ -171,13 +171,12 @@ public class RenderPanel extends JPanel implements MouseListener {
         return shifted;
     }
 
-    private DoubleDouble pixelsToPlaneLength(int p) { // Works
-        DoubleDouble y1 = map(0, 0, height, center.i.subtract(new DoubleDouble(scale / 2f)), center.i.add(new DoubleDouble(scale / 2f)));
-        DoubleDouble y2 = map(p, 0, height, center.i.subtract(new DoubleDouble(scale / 2f)), center.i.add(new DoubleDouble(scale / 2f)));
+    private BigDecimal pixelsToPlaneLength(int p) { // Works
+        BigDecimal y1 = map(0, 0, height, center.i.subtract(new BigDecimal(scale / 2f)), center.i.add(new BigDecimal(scale / 2f)));
+        BigDecimal y2 = map(p, 0, height, center.i.subtract(new BigDecimal(scale / 2f)), center.i.add(new BigDecimal(scale / 2f)));
 
         return y1.abs().subtract(y2.abs()).abs();
     }
-
 
     public void mouseClicked(MouseEvent me) {
         ControlPanel.instance.grabFocus();

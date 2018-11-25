@@ -23,6 +23,7 @@ public class PaletteSelectComboBox extends JPanel {
 
         algorithmHashMap.put("Simple", "Simple");
         algorithmHashMap.put("Logarithmic", "Logarithmic");
+        algorithmHashMap.put("Smooth", "Smooth");
 
         paletteHashMap.put("Black and white", new ColorPalette(new Color(0, 0, 0), new Color(255, 255, 255)));
         paletteHashMap.put("BRG", new ColorPalette(

@@ -22,7 +22,7 @@ public class FloatRenderingThread extends RenderingThread {
 
         int n = calculateMandelbrot(cr, ci, renderData.threshold);
 
-        Color color = renderData.colorAlgorithm.calculate(n, new Complex(), renderData.threshold);
+        Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold);
 
         parent.setPixel(renderData.x, renderData.y, color);
 

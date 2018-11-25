@@ -66,7 +66,7 @@ public class RenderingManagerThread extends Thread {
                     renderingThreads[i] = new FloatRenderingThread(this);
                     break;
                 case DOUBLEDOUBLE:
-                    renderingThreads[i] = new DoubleDoubleRenderingThread(this);
+                    renderingThreads[i] = new BigDecimalRenderingThread(this);
                     break;
                 case PALETTE:
                     renderingThreads[i] = new PaletteRenderingThread(this);
