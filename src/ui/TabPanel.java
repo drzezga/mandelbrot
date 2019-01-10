@@ -4,22 +4,19 @@ import ui.tabs.*;
 
 import javax.swing.*;
 
-public class ControlPanel extends JTabbedPane {
+public class TabPanel extends JTabbedPane {
 
-    static ControlPanel instance;
+    static TabPanel instance;
 
     JPanel rendering = new RenderingTab();
     JPanel variables = new VariablesTab();
     JPanel position = new PositionTab();
-    JPanel animation = new JPanel();
+    JPanel animation = new AnimationTab();
     JPanel coloring = new ColoringTab();
-    JLabel animationLabel = new JLabel("Animation");
     JPanel settings = new SettingsTab();
 
-    public ControlPanel() {
+    public TabPanel() {
         instance = this;
-
-        animation.add(animationLabel);
 
         add("Rendering", rendering);
         add("Variables", variables);

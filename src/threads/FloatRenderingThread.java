@@ -1,7 +1,7 @@
 package threads;
 
 import util.Complex;
-import util.RenderData;
+import util.PixelRenderData;
 
 import java.awt.*;
 
@@ -11,7 +11,7 @@ public class FloatRenderingThread extends RenderingThread {
         this.parent = parent;
     }
 
-    void calculate(RenderData renderData) {
+    void calculate(PixelRenderData renderData) {
         float centerR = (float)renderData.center.r.doubleValue();
         float centerI = (float)renderData.center.i.doubleValue();
 

@@ -1,27 +1,8 @@
 package util;
 
-import colors.algorithms.ColorAlgorithm;
-
 public class RenderData {
-    public final int x;
-    public final int y;
-    public final Complex center;
-    public final double scale;
-    public final float screenRatio;
-    public final int w;
-    public final int h;
-    public final int threshold;
-    public ColorAlgorithm colorAlgorithm;
-
-    public RenderData(int x, int y, Complex center, double scale, float screenRatio, int w, int h, int threshold, ColorAlgorithm colorAlgorithm) {
-        this.x = x;
-        this.y = y;
-        this.center = center;
-        this.scale = scale;
-        this.screenRatio = screenRatio;
-        this.w = w;
-        this.h = h;
-        this.threshold = threshold;
-        this.colorAlgorithm = colorAlgorithm;
-    }
+    Complex pos;
+    double scale;
+    int threshold;
+    float zPow;
 }

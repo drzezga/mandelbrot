@@ -4,7 +4,7 @@ import colors.algorithms.ColorAlgorithm;
 import ui.RenderPanel;
 import ui.tabs.RenderingTab;
 import util.Complex;
-import util.RenderData;
+import util.PixelRenderData;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -89,14 +89,14 @@ public class RenderingManagerThread extends Thread {
         RenderPanel.instance.repaint();
     }
 
-    public RenderData fetchData() {
+    public PixelRenderData fetchData() {
         if (pixelsLeft > 0) {
             pixelsLeft--;
             int wp = x2 - x1;
             int x = pixelsLeft % wp + x1;
             int y = (int) Math.floor(pixelsLeft / wp) + y1;
 
-            return new RenderData(x, y, center, scale, screenRatio, w, h, threshold, colorAlgorithm);
+            return new PixelRenderData(x, y, center, scale, screenRatio, w, h, threshold, colorAlgorithm);
         }
         return null;
     }

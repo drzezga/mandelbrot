@@ -1,6 +1,6 @@
 package threads;
 
-import util.RenderData;
+import util.PixelRenderData;
 
 abstract public class RenderingThread extends Thread {
 
@@ -16,7 +16,7 @@ abstract public class RenderingThread extends Thread {
 
     public void run() {
         while (!finished) {
-            RenderData data = parent.fetchData();
+            PixelRenderData data = parent.fetchData();
             if (data != null) {
                 calculate(data);
             } else {
@@ -26,5 +26,5 @@ abstract public class RenderingThread extends Thread {
     }
 
 
-    abstract void calculate(RenderData renderData);
+    abstract void calculate(PixelRenderData renderData);
 }

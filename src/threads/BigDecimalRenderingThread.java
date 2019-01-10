@@ -1,7 +1,7 @@
 package threads;
 
 import util.Complex;
-import util.RenderData;
+import util.PixelRenderData;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -16,7 +16,7 @@ public class BigDecimalRenderingThread extends RenderingThread {
     final static BigDecimal EIGHT = new BigDecimal("8");
 
     @Override
-    public void calculate(RenderData renderData) {
+    public void calculate(PixelRenderData renderData) {
         Complex c = new Complex(
                 map(renderData.x, 0, renderData.w,
                         renderData.center.r.subtract(new BigDecimal(renderData.scale / 2f * renderData.screenRatio)), renderData.center.r.add(new BigDecimal(renderData.scale / 2f * renderData.screenRatio))),

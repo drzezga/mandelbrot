@@ -1,4 +1,4 @@
-import ui.ControlPanel;
+import ui.TabPanel;
 import ui.KeyHandler;
 import ui.RenderPanel;
 
@@ -9,7 +9,7 @@ public class MainWindow extends JFrame {
 
     JPanel p = new JPanel();
     JPanel viewport = new RenderPanel();
-    ControlPanel controlPanel = new ControlPanel();
+    TabPanel tabPanel = new TabPanel();
 
     public static MainWindow instance;
 
@@ -36,8 +36,8 @@ public class MainWindow extends JFrame {
 
         p.setLayout(new BorderLayout());
         p.add(viewport, BorderLayout.CENTER);
-        p.add(controlPanel, BorderLayout.PAGE_END);
-        controlPanel.addKeyListener(new KeyHandler());
+        p.add(tabPanel, BorderLayout.PAGE_END);
+        tabPanel.addKeyListener(new KeyHandler());
         add(p);
 
         pack();

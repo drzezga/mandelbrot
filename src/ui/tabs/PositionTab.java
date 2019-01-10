@@ -1,6 +1,5 @@
 package ui.tabs;
 
-
 import ui.RenderPanel;
 
 import javax.swing.*;
@@ -10,15 +9,15 @@ public class PositionTab extends JPanel {
 
     public static PositionTab instance;
 
-    public JFormattedTextField positionRealComboBox;
-    public JFormattedTextField positionImaginaryComboBox;
-    public JFormattedTextField scaleComboBox;
+    public JTextField positionRealComboBox;
+    public JTextField positionImaginaryComboBox;
+    public JTextField scaleComboBox;
 
     public PositionTab() {
         instance = this;
-        positionRealComboBox = new JFormattedTextField(-0.75);
-        positionImaginaryComboBox = new JFormattedTextField(0);
-        scaleComboBox = new JFormattedTextField(3);
+        positionRealComboBox = new JTextField("-0.75");
+        positionImaginaryComboBox = new JTextField("0");
+        scaleComboBox = new JTextField("3");
 
         JButton resetPosButton = new JButton("Reset position");
         JButton resetScaleButton = new JButton("Reset scale");

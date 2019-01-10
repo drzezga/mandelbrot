@@ -1,7 +1,7 @@
 package threads;
 
 import util.Complex;
-import util.RenderData;
+import util.PixelRenderData;
 
 public class PaletteRenderingThread extends RenderingThread {
 
@@ -10,7 +10,7 @@ public class PaletteRenderingThread extends RenderingThread {
     }
 
     @Override
-    void calculate(RenderData renderData) {
+    void calculate(PixelRenderData renderData) {
 //        System.out.println(renderData.x);
         parent.setPixel(renderData.x, renderData.y, renderData.colorAlgorithm.calculate((float)renderData.x, new Complex(), renderData.w));
     }

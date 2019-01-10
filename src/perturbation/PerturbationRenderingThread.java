@@ -1,6 +1,6 @@
 package perturbation;
 import util.Complex;
-import util.RenderData;
+import util.PixelRenderData;
 
 import java.awt.*;
 
@@ -16,7 +16,7 @@ public class PerturbationRenderingThread extends Thread {
 
     public void run() {
         while (!finished) {
-            RenderData data = parent.fetchData();
+            PixelRenderData data = parent.fetchData();
             if (data != null) {
                 calculate(data);
             } else {
@@ -28,7 +28,7 @@ public class PerturbationRenderingThread extends Thread {
     private double c0r;
     private double c0i;
 
-    public void calculate(RenderData renderData) {
+    public void calculate(PixelRenderData renderData) {
 //
 
         int window_radius = (renderData.w < renderData.h) ? renderData.w : renderData.h;

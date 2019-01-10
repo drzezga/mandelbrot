@@ -52,7 +52,7 @@ public class SettingsManager {
     }
 
     public static void setScale(double scale) {
-        PositionTab.instance.scaleComboBox.setValue(scale);
+        PositionTab.instance.scaleComboBox.setText(Double.toString(scale));
     }
 
     public static Complex getCenter() {

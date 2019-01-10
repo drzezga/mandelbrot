@@ -27,6 +27,7 @@ public class RenderPanel extends JPanel implements MouseListener {
     private int height;
 
     public BufferedImage bufferedImage;
+    RenderingManagerThread renderingManagerThread;
 
     public RenderPanel() {
         instance = this;
@@ -70,6 +71,9 @@ public class RenderPanel extends JPanel implements MouseListener {
     }
 
     public void render() {
+        if (renderingManagerThread != null) {
+            if (renderingManagerThread.isAlive()) return;
+        }
         threshold = SettingsManager.getThreshold();
         scale = SettingsManager.getScale();
         center = SettingsManager.getCenter();
@@ -81,7 +85,7 @@ public class RenderPanel extends JPanel implements MouseListener {
             bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
 
-        RenderingManagerThread renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+        renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
                 SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(),0, 0, width, height);
 
         renderingManagerThread.start();
@@ -179,10 +183,10 @@ public class RenderPanel extends JPanel implements MouseListener {
     }
 
     public void mouseClicked(MouseEvent me) {
-        ControlPanel.instance.grabFocus();
+        TabPanel.instance.grabFocus();
     }
     public void mousePressed(MouseEvent me) {}
-    public void mouseReleased(MouseEvent me) {}
+    public void mouseReleased(MouseEvent me) { TabPanel.instance.grabFocus(); }
     public void mouseExited(MouseEvent me) {}
     public void mouseEntered(MouseEvent me) {}
 }
