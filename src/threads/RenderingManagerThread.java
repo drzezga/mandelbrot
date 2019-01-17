@@ -5,6 +5,7 @@ import ui.RenderPanel;
 import ui.tabs.RenderingTab;
 import util.Complex;
 import util.PixelRenderData;
+import util.SettingsManager;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -12,25 +13,25 @@ import java.awt.image.BufferedImage;
 public class RenderingManagerThread extends Thread {
 
     BufferedImage image;
-    private final Complex center;
-    private final int w;
-    private final int h;
-    private final double scale;
-    private float screenRatio;
-    private final int threshold;
-    private final ColorAlgorithm colorAlgorithm;
-    private ThreadType threadType;
+    protected final Complex center;
+    protected final int w;
+    protected final int h;
+    protected final double scale;
+    protected float screenRatio;
+    protected final int threshold;
+    protected final ColorAlgorithm colorAlgorithm;
+    protected ThreadType threadType;
 
-    private int x1;
-    private int y1;
-    private int x2;
-    private int y2;
+    protected int x1;
+    protected int y1;
+    protected int x2;
+    protected int y2;
 
-    private int pixelsLeft;
+    protected int pixelsLeft;
 
-    long startTime;
+    protected long startTime;
 
-    private RenderingThread[] renderingThreads = new RenderingThread[Runtime.getRuntime().availableProcessors()];
+    protected RenderingThread[] renderingThreads = new RenderingThread[Runtime.getRuntime().availableProcessors()];
 
     public RenderingManagerThread(BufferedImage _bufferedImage, Complex _center, int _w, int _h, double _zoom, int _threshold, ColorAlgorithm _colorAlgorithm, ThreadType threadType, int x1, int y1, int x2, int y2) {
         image = _bufferedImage;
@@ -52,35 +53,39 @@ public class RenderingManagerThread extends Thread {
         System.out.println("Running with " + Runtime.getRuntime().availableProcessors() + " cores");
     }
 
+    public RenderingManagerThread(BufferedImage _bufferedImage, ThreadType threadType, int x1, int y1, int x2, int y2) {
+        image = _bufferedImage;
+        center = SettingsManager.getCenter();
+        w = SettingsManager.getResolutionX();
+        h = SettingsManager.getResolutionY();
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        screenRatio = (float)w / (float)h;
+        scale = SettingsManager.getScale();
+        threshold = SettingsManager.getThreshold();
+        colorAlgorithm = SettingsManager.getColorAlgorithm();
+        pixelsLeft = (x2 - x1) * (y2 - y1);
+        this.threadType = threadType;
+
+        System.out.println(screenRatio);
+        System.out.println("Running with " + Runtime.getRuntime().availableProcessors() + " cores");
+    }
+
     @Override
     public void run() {
         super.run();
         RenderingTab renderingTab = RenderingTab.instance;
         startTime = System.nanoTime();
         renderingTab.setTime(0);
-        renderingTab.setMaxIterations((x1 - x2) * (y1 - y2));
+        renderingTab.setMaxIterations((x2 - x1) * (y2 - y1));
 
-        for (int i = 0; i < renderingThreads.length; i++) {
-            switch (threadType) {
-                case FLOAT:
-                    renderingThreads[i] = new FloatRenderingThread(this);
-                    break;
-                case DOUBLEDOUBLE:
-                    renderingThreads[i] = new BigDecimalRenderingThread(this);
-                    break;
-                case PALETTE:
-                    renderingThreads[i] = new PaletteRenderingThread(this);
-                    break;
-                case DOUBLE:
-                    renderingThreads[i] = new DoubleRenderingThread(this);
-                    break;
-            }
-            renderingThreads[i].start();
-        }
+        startThreads();
 
         while (areThreadsRunning()) {
             try {
-                renderingTab.setProgress((x1 - x2) * (y1 - y2) - pixelsLeft);
+                renderingTab.setProgress((x2 - x1) * (y2 - y1) - pixelsLeft);
                 sleep(25);
             } catch (InterruptedException e) {}
         }
@@ -89,14 +94,47 @@ public class RenderingManagerThread extends Thread {
         RenderPanel.instance.repaint();
     }
 
+    protected void startThreads() {
+        for (int i = 0; i < renderingThreads.length; i++) {
+            switch (threadType) {
+                case FLOAT:
+                    renderingThreads[i] = new FloatRenderingThread(this);
+                    break;
+                case BIGDECIMAL:
+                    renderingThreads[i] = new BigDecimalRenderingThread(this);
+                    break;
+                case PALETTE:
+                    renderingThreads[i] = new PaletteRenderingThread(this);
+                    break;
+                case DOUBLE:
+                    renderingThreads[i] = new DoubleRenderingThread(this);
+                    break;
+                case JULIASET:
+                    renderingThreads[i] = new JuliaSetRenderingThread(this);
+                    break;
+            }
+            if (i == 0 && !renderingThreads[i].isShiftRenderingEnabled()) {
+                x1 = 0;
+                y1 = 0;
+                x2 = image.getWidth();
+                y2 = image.getHeight();
+
+                RenderingTab renderingTab = RenderingTab.instance;
+                renderingTab.setMaxIterations((x2 - x1) * (y2 - y1));
+                pixelsLeft = (x2 - x1) * (y2 - y1);
+            }
+            renderingThreads[i].start();
+        }
+    }
+
     public PixelRenderData fetchData() {
         if (pixelsLeft > 0) {
             pixelsLeft--;
             int wp = x2 - x1;
             int x = pixelsLeft % wp + x1;
-            int y = (int) Math.floor(pixelsLeft / wp) + y1;
+            int y = (int) Math.floor((float) pixelsLeft / wp) + y1;
 
-            return new PixelRenderData(x, y, center, scale, screenRatio, w, h, threshold, colorAlgorithm);
+            return new PixelRenderData(x, y, center, scale, screenRatio, w, h, threshold, colorAlgorithm, pixelsLeft == 0);
         }
         return null;
     }
@@ -109,7 +147,7 @@ public class RenderingManagerThread extends Thread {
         }
     }
 
-    private boolean areThreadsRunning() {
+    protected boolean areThreadsRunning() {
         for (int i = 0; i < renderingThreads.length; i++) {
             if (renderingThreads[i].isAlive())
                 return true;

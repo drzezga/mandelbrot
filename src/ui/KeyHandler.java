@@ -2,6 +2,7 @@ package ui;
 
 import ui.tabs.PositionTab;
 import ui.tabs.RenderingTab;
+import ui.tabs.SettingsTab;
 import ui.tabs.VariablesTab;
 
 import java.awt.event.KeyEvent;
@@ -44,25 +45,33 @@ public class KeyHandler implements KeyListener {
                     renderPanel.moveRight(40);
                     break;
                 case 82: // r - scale in
-                    PositionTab.instance.scaleComboBox.setText( Double.toString(renderPanel.scale / 2));
+                    PositionTab.instance.scaleComboBox.setText( Double.toString(renderPanel.renderData.scale / 2));
                     renderPanel.render();
                     break;
                 case 70: // f - scale out
-                    PositionTab.instance.scaleComboBox.setText( Double.toString(renderPanel.scale * 2));
+                    PositionTab.instance.scaleComboBox.setText( Double.toString(renderPanel.renderData.scale * 2));
                     renderPanel.render();
                     break;
                 case 90: // z - threshold -= 50
-                    if (renderPanel.threshold > 50)
-                        VariablesTab.instance.threshold.setValue( renderPanel.threshold - 50);
-                    System.out.println(renderPanel.threshold);
+                    if (renderPanel.renderData.threshold > 50)
+                        VariablesTab.instance.threshold.setValue( renderPanel.renderData.threshold - 50);
+                    System.out.println(renderPanel.renderData.threshold);
                     renderPanel.render();
                     break;
                 case 88: // x - threshold += 50
-                    VariablesTab.instance.threshold.setValue( renderPanel.threshold + 50);
-                    System.out.println(renderPanel.threshold);
+                    VariablesTab.instance.threshold.setValue( renderPanel.renderData.threshold + 50);
+                    System.out.println(renderPanel.renderData.threshold);
                     renderPanel.render();
                     break;
-                case 81:
+                case 81: // q - render
+                    renderPanel.render();
+                    break;
+                case 89: // y - toggle julia/double
+                    if (SettingsTab.instance.renderingEngineSelectComboBox.comboBox.getSelectedItem() == "Julia Set") {
+                        SettingsTab.instance.renderingEngineSelectComboBox.comboBox.setSelectedItem("Double");
+                    } else {
+                        SettingsTab.instance.renderingEngineSelectComboBox.comboBox.setSelectedItem("Julia Set");
+                    }
                     renderPanel.render();
                     break;
             }

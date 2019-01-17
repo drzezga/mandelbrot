@@ -12,8 +12,9 @@ public class PixelRenderData {
     public final int h;
     public final int threshold;
     public ColorAlgorithm colorAlgorithm;
+    public boolean last;
 
-    public PixelRenderData(int x, int y, Complex center, double scale, float screenRatio, int w, int h, int threshold, ColorAlgorithm colorAlgorithm) {
+    public PixelRenderData(int x, int y, Complex center, double scale, float screenRatio, int w, int h, int threshold, ColorAlgorithm colorAlgorithm, boolean last) {
         this.x = x;
         this.y = y;
         this.center = center;
@@ -23,5 +24,6 @@ public class PixelRenderData {
         this.h = h;
         this.threshold = threshold;
         this.colorAlgorithm = colorAlgorithm;
+        this.last = last;
     }
 }

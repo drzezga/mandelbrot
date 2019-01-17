@@ -1,5 +1,6 @@
 package ui.tabs;
 
+import threads.AnimationRenderingThread;
 import ui.timeline.Timeline;
 
 import javax.swing.*;
@@ -17,6 +18,10 @@ public class AnimationTab extends JPanel {
 
     private JProgressBar progressBar;
     private JButton renderButton;
+
+    private boolean rendering = false;
+
+    AnimationRenderingThread animationRenderingThread;
 
     public AnimationTab() {
         controlPanel = new JPanel();
@@ -70,5 +75,25 @@ public class AnimationTab extends JPanel {
 
     public Timeline getTimeline() {
         return timeline;
+    }
+
+    public void setMaxIterations(int n) {
+        progressBar.setMaximum(n);
+    }
+
+    public void setProgress(int n) {
+        progressBar.setValue(n);
+        progressBar.setString(n + " / " + progressBar.getMaximum());
+        rendering = true;
+    }
+
+    public void setTime(float seconds) {
+        if (seconds == 0) {
+            progressBar.setValue(0);
+        } else {
+            progressBar.setValue(progressBar.getMaximum());
+            progressBar.setString("Render time: " + seconds + "s");
+            rendering = false;
+        }
     }
 }

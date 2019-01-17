@@ -45,7 +45,7 @@ public class SettingsManager {
         try {
             val = Double.parseDouble(PositionTab.instance.scaleComboBox.getText());
         } catch (NumberFormatException e) {
-            val = RenderPanel.instance.scale;
+            val = RenderPanel.instance.renderData.scale;
             PositionTab.instance.scaleComboBox.setText(Double.toString(val));
         }
         return val;
@@ -61,13 +61,13 @@ public class SettingsManager {
         try {
             real = new BigDecimal(PositionTab.instance.positionRealComboBox.getText());
         } catch (NumberFormatException e) {
-            real = RenderPanel.instance.center.r;
+            real = RenderPanel.instance.renderData.center.r;
             PositionTab.instance.positionRealComboBox.setText(real.toPlainString());
         }
         try {
             imag = new BigDecimal(PositionTab.instance.positionImaginaryComboBox.getText());
         } catch (NumberFormatException e) {
-            imag = RenderPanel.instance.center.i;
+            imag = RenderPanel.instance.renderData.center.i;
             PositionTab.instance.positionRealComboBox.setText(imag.toPlainString());
         }
         return new Complex(real, imag);
@@ -93,5 +93,9 @@ public class SettingsManager {
             case "Smooth": return new SmoothColorAlgorithm(getColorPalette());
         }
         return null;
+    }
+
+    public static float getZPow() {
+        return 2;
     }
 }

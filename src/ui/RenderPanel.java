@@ -3,6 +3,7 @@ package ui;
 import com.sun.javafx.scene.traversal.Direction;
 import threads.RenderingManagerThread;
 import util.Complex;
+import util.RenderData;
 import util.SettingsManager;
 
 import javax.swing.*;
@@ -18,20 +19,24 @@ public class RenderPanel extends JPanel implements MouseListener {
 
     public static RenderPanel instance;
 
+    public RenderData renderData;
+
     // Changeable variables
-    public int threshold;
-    public Complex center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
-    public double scale;
+//    public int threshold;
+
+//    public double scale;
 
     private int width;
     private int height;
 
     public BufferedImage bufferedImage;
-    RenderingManagerThread renderingManagerThread;
+    private RenderingManagerThread renderingManagerThread;
 
     public RenderPanel() {
         instance = this;
         setPreferredSize(new Dimension(800, 800));
+        renderData = new RenderData();
+        renderData.center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
 
         addMouseListener(this);
     }
@@ -74,9 +79,10 @@ public class RenderPanel extends JPanel implements MouseListener {
         if (renderingManagerThread != null) {
             if (renderingManagerThread.isAlive()) return;
         }
-        threshold = SettingsManager.getThreshold();
-        scale = SettingsManager.getScale();
-        center = SettingsManager.getCenter();
+        renderData.threshold = SettingsManager.getThreshold();
+        renderData.scale = SettingsManager.getScale();
+        renderData.center = SettingsManager.getCenter();
+        renderData.zPow = SettingsManager.getZPow();
 
         width = SettingsManager.getResolutionX();
         height = SettingsManager.getResolutionY();
@@ -85,17 +91,17 @@ public class RenderPanel extends JPanel implements MouseListener {
             bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
 
-        renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+        renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
                 SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(),0, 0, width, height);
 
         renderingManagerThread.start();
     }
 
     private void shiftRender(Direction dir, int p) {
-        threshold = SettingsManager.getThreshold();
-        scale = SettingsManager.getScale();
-        center = SettingsManager.getCenter();
-        System.out.println(center.r + " " + center.i);
+        renderData.threshold = SettingsManager.getThreshold();
+        renderData.scale = SettingsManager.getScale();
+        renderData.center = SettingsManager.getCenter();
+        System.out.println(renderData.center.r + " " + renderData.center.i);
 
         width = SettingsManager.getResolutionX();
         height = SettingsManager.getResolutionY();
@@ -109,26 +115,26 @@ public class RenderPanel extends JPanel implements MouseListener {
         switch(dir) {
             case RIGHT:
                 bufferedImage = shiftImage(bufferedImage, p, 0);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
                         SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, 0, p, height);
                 break;
             case LEFT:
                 bufferedImage = shiftImage(bufferedImage, -p, 0);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
                         SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), width - p, 0, width, height);
                 break;
             case UP:
                 bufferedImage = shiftImage(bufferedImage, 0, -p);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
                         SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, height - p, width, height);
                 break;
             case DOWN:
                 bufferedImage = shiftImage(bufferedImage, 0, p);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
                         SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, 0, width, p);
                 break;
             default:
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, center, width, height, scale, threshold,
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
                         SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, 0, width, height);
                 break;
         }
@@ -137,22 +143,22 @@ public class RenderPanel extends JPanel implements MouseListener {
     }
 
     public void moveRight(int pixels) {
-        SettingsManager.setCenter(new Complex(center.r.add(pixelsToPlaneLength(pixels)), center.i));
+        SettingsManager.setCenter(new Complex(renderData.center.r.add(pixelsToPlaneLength(pixels)), renderData.center.i));
         shiftRender(Direction.LEFT, pixels);
     }
 
     public void moveLeft(int pixels) {
-        SettingsManager.setCenter(new Complex(center.r.subtract(pixelsToPlaneLength(pixels)), center.i));
+        SettingsManager.setCenter(new Complex(renderData.center.r.subtract(pixelsToPlaneLength(pixels)), renderData.center.i));
         shiftRender(Direction.RIGHT, pixels);
     }
 
     public void moveUp(int pixels) {
-        SettingsManager.setCenter(new Complex(center.r, center.i.subtract(pixelsToPlaneLength(pixels))));
+        SettingsManager.setCenter(new Complex(renderData.center.r, renderData.center.i.subtract(pixelsToPlaneLength(pixels))));
         shiftRender(Direction.DOWN, pixels);
     }
 
     public void moveDown(int pixels) {
-        SettingsManager.setCenter(new Complex(center.r, center.i.add(pixelsToPlaneLength(pixels))));
+        SettingsManager.setCenter(new Complex(renderData.center.r, renderData.center.i.add(pixelsToPlaneLength(pixels))));
         shiftRender(Direction.UP, pixels);
     }
 
@@ -176,8 +182,8 @@ public class RenderPanel extends JPanel implements MouseListener {
     }
 
     private BigDecimal pixelsToPlaneLength(int p) { // Works
-        BigDecimal y1 = map(0, 0, height, center.i.subtract(new BigDecimal(scale / 2f)), center.i.add(new BigDecimal(scale / 2f)));
-        BigDecimal y2 = map(p, 0, height, center.i.subtract(new BigDecimal(scale / 2f)), center.i.add(new BigDecimal(scale / 2f)));
+        BigDecimal y1 = map(0, 0, height, renderData.center.i.subtract(new BigDecimal(renderData.scale / 2f)), renderData.center.i.add(new BigDecimal(renderData.scale / 2f)));
+        BigDecimal y2 = map(p, 0, height, renderData.center.i.subtract(new BigDecimal(renderData.scale / 2f)), renderData.center.i.add(new BigDecimal(renderData.scale / 2f)));
 
         return y1.abs().subtract(y2.abs()).abs();
     }

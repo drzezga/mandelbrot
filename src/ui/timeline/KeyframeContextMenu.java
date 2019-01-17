@@ -6,11 +6,13 @@ public class KeyframeContextMenu extends JPopupMenu {
     public JMenuItem delButton;
     public JMenuItem propButton;
     public JMenuItem toggleButton;
+    public JMenuItem setCurrentViewButton;
 
     public KeyframeContextMenu(Keyframe kf) {
         propButton = new JMenuItem("Properties");
         delButton = new JMenuItem("Delete");
         toggleButton = new JMenuItem("Disable/Enable");
+        setCurrentViewButton = new JMenuItem("Set to current view");
 
         add(propButton);
 //        add(new JMenuBar());
@@ -18,7 +20,7 @@ public class KeyframeContextMenu extends JPopupMenu {
         add(new JMenuItem("Clone"));
         add(toggleButton);
         add(new JPopupMenu.Separator());
-        add(new JMenuItem("Set to current view"));
+        add(setCurrentViewButton);
         add(new JMenuItem("Render in view"));
         add(new JPopupMenu.Separator());
         add(new JMenuItem("Position: " + kf.position));

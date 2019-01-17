@@ -5,9 +5,9 @@ import util.PixelRenderData;
 
 import java.awt.*;
 
-public class DoubleRenderingThread extends RenderingThread {
+public class JuliaSetRenderingThread extends RenderingThread {
 
-    public DoubleRenderingThread(RenderingManagerThread parent) {
+    public JuliaSetRenderingThread(RenderingManagerThread parent) {
         this.parent = parent;
     }
 
@@ -16,11 +16,11 @@ public class DoubleRenderingThread extends RenderingThread {
         double centerI = renderData.center.i.doubleValue();
 
         double cr = map(renderData.x, 0, renderData.w,
-                centerR - (renderData.scale / 2f * renderData.screenRatio), centerR + renderData.scale / 2f * renderData.screenRatio);
+                -1.5 * renderData.screenRatio, 1.5 * renderData.screenRatio);
         double ci = map(renderData.y, 0, renderData.h,
-                centerI - (renderData.scale / 2f), centerI + renderData.scale / 2f);
+                -1.5, 1.5);
 
-        int n = calculateMandelbrot(cr, ci, renderData.threshold);
+        int n = calculateJulia(cr, ci, renderData.threshold, centerR, centerI);
 
 
         Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold);
@@ -28,9 +28,9 @@ public class DoubleRenderingThread extends RenderingThread {
         parent.setPixel(renderData.x, renderData.y, color);
     }
 
-    public static int calculateMandelbrot(double cr, double ci, int threshold) {
-        double zr = 0;
-        double zi = 0;
+    private int calculateJulia(double cr, double ci, int threshold, double centerR, double centerI) {
+        double zr = cr;
+        double zi = ci;
 
         int n = 0;
 
@@ -38,8 +38,8 @@ public class DoubleRenderingThread extends RenderingThread {
             double zr2 = zr * zr - zi * zi;
             double zi2 = zr * zi * 2;
 
-            zr = zr2 + cr;
-            zi = zi2 + ci;
+            zr = zr2 + centerR;
+            zi = zi2 + centerI;
 
             if (Math.abs(zr) + Math.abs(zi) > 32) {
                 break;
@@ -50,10 +50,14 @@ public class DoubleRenderingThread extends RenderingThread {
     }
 
     static public final double map(double value,
-                                  double start1, double stop1,
-                                  double start2, double stop2) {
+                                   double start1, double stop1,
+                                   double start2, double stop2) {
         double outgoing =
                 start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
         return outgoing;
+    }
+
+    public boolean isShiftRenderingEnabled() {
+        return false;
     }
 }

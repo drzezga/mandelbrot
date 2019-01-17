@@ -87,7 +87,7 @@ public class PerturbationManagerThread extends Thread {
             int x = pixelsLeft % wp + x1;
             int y = (int) Math.floor(pixelsLeft / wp) + y1;
 
-            return new PixelRenderData(x, y, center, scale, screenRatio, w, h, threshold, colorAlgorithm);
+            return new PixelRenderData(x, y, center, scale, screenRatio, w, h, threshold, colorAlgorithm, pixelsLeft == 0);
         }
         return null;
     }

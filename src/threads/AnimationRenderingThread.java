@@ -1,20 +1,77 @@
 package threads;
 
-import colors.algorithms.ColorAlgorithm;
 import ui.tabs.AnimationTab;
 import ui.timeline.Keyframe;
-import util.Complex;
-import util.RenderData;
+import util.*;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+
 public class AnimationRenderingThread extends RenderingManagerThread {
-    public AnimationRenderingThread(BufferedImage _bufferedImage, Complex _center, int _w, int _h, double _zoom, int _threshold, ColorAlgorithm _colorAlgorithm, ThreadType threadType, int x1, int y1, int x2, int y2) {
-        super(_bufferedImage, _center, _w, _h, _zoom, _threshold, _colorAlgorithm, threadType, x1, y1, x2, y2);
+
+    private RenderData[] frameData;
+    private AnimationTab at;
+    private int frameIndex = 0;
+
+    public AnimationRenderingThread(ThreadType threadType, AnimationTab at) {
+        super(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_INT_ARGB),
+                threadType, 0, 0, SettingsManager.getResolutionX(), SettingsManager.getResolutionY());
+
+        this.frameData = generateFrameData(at);
+        this.at = at;
     }
 
-    public RenderData[] generateFrameData(AnimationTab at) {
+    @Override
+    public void run() {
+        super.run();
+        startTime = System.nanoTime();
+        at.setTime(0);
+        at.setMaxIterations(w * h * frameData.length);
+
+        startThreads();
+
+        while (areThreadsRunning()) {
+            try {
+                at.setProgress(w * h * frameData.length - pixelsLeft);
+                sleep(25);
+            } catch (InterruptedException e) {}
+        }
+        at.setTime((float)(System.nanoTime() - startTime) / 1000000000);
+        System.out.println("Animation rendering finished");
+    }
+
+    public void nextFrame() {
+        frameIndex++;
+        // TODO: Add the frame to the video here
+        image = new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_INT_ARGB);
+        pixelsLeft = w * h;
+    }
+
+    public PixelRenderData fetchData() {
+        if (frameIndex >= frameData.length) {
+            return null;
+        } else if (pixelsLeft > 0) {
+            pixelsLeft--;
+            int x = pixelsLeft % w + x1;
+            int y = (int) Math.floor((float) pixelsLeft / w) + y1;
+
+            return new PixelRenderData(x, y, frameData[frameIndex].center, frameData[frameIndex].scale, screenRatio, w, h, frameData[frameIndex].threshold, colorAlgorithm, pixelsLeft == 0);
+        } else {
+            return new ThreadStallData(0, 0, new Complex(), 0f, 0f, 0, 0, 0, SettingsManager.getColorAlgorithm(), false);
+        }
+    }
+
+    public void setPixel(int x, int y, Color color) {
+        if (color == null) {
+            System.err.println("Color null: " + x + " " + y);
+        } else {
+            image.setRGB(x, y, color.getRGB());
+        }
+    }
+
+    private RenderData[] generateFrameData(AnimationTab at) {
         int framerate = at.getFramerate();
         RenderData[] frameData = new RenderData[(int) (at.getTimeline().getLength() * framerate)];
         ArrayList<Keyframe> kfs = at.getTimeline().getKeyframes();

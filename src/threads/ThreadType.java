@@ -3,6 +3,7 @@ package threads;
 public enum ThreadType {
     PALETTE,
     FLOAT,
-    DOUBLEDOUBLE,
-    DOUBLE
+    BIGDECIMAL,
+    DOUBLE,
+    JULIASET
 }

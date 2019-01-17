@@ -1,5 +1,7 @@
 package ui.timeline;
 
+import ui.RenderPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -179,6 +181,9 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
             kfcm.toggleButton.addActionListener((ActionEvent ae) -> {
                 finalKf.toggle();
                 repaint();
+            });
+            kfcm.setCurrentViewButton.addActionListener(ae -> {
+                finalKf.setRenderData(RenderPanel.instance.renderData.copy());
             });
             kfcm.show(e.getComponent(), e.getX(), e.getY());
             return;
