@@ -25,7 +25,7 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 
     @Override
     public void run() {
-        super.run();
+        superRun();
         startTime = System.nanoTime();
         at.setTime(0);
         at.setMaxIterations(w * h * frameData.length);
@@ -43,20 +43,24 @@ public class AnimationRenderingThread extends RenderingManagerThread {
     }
 
     public void nextFrame() {
+        System.out.println("Frame rendered");
         frameIndex++;
         // TODO: Add the frame to the video here
         image = new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_INT_ARGB);
         pixelsLeft = w * h;
+//        TODO: Celownik
     }
 
     public PixelRenderData fetchData() {
+//        System.out.println("Frame data length: " + frameData.length);
         if (frameIndex >= frameData.length) {
             return null;
         } else if (pixelsLeft > 0) {
             pixelsLeft--;
             int x = pixelsLeft % w + x1;
             int y = (int) Math.floor((float) pixelsLeft / w) + y1;
-
+//            System.out.println(pixelsLeft);
+            if (frameData[frameIndex] == null) System.out.println(frameIndex);
             return new PixelRenderData(x, y, frameData[frameIndex].center, frameData[frameIndex].scale, screenRatio, w, h, frameData[frameIndex].threshold, colorAlgorithm, pixelsLeft == 0);
         } else {
             return new ThreadStallData(0, 0, new Complex(), 0f, 0f, 0, 0, 0, SettingsManager.getColorAlgorithm(), false);
@@ -80,18 +84,16 @@ public class AnimationRenderingThread extends RenderingManagerThread {
             Keyframe kf = kfs.get(i);
 
             switch (kf.getInterpolationType()) {
+                case EASEINOUT:
                 case JUMP:
                     RenderData rd = kf.getRenderData();
-                    if (kfs.get(i + 1) == null) {
-                        frameData[i * framerate] = rd;
+                    if (i + 1 == kfs.size()) {
+                        frameData[i] = rd;
                         break;
                     }
-                    for (int j = 0; j < (kfs.get(i + 1).position - kf.position) * framerate; j++) {
+                    for (int j = 0; j < (kfs.get(i + 1).getPosition() - kf.getPosition()) * framerate; j++) {
                         frameData[i * framerate + j] = rd;
                     }
-                    break;
-                case EASEINOUT:
-
                     break;
 
                 default:

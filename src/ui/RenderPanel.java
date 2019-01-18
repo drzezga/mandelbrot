@@ -36,7 +36,6 @@ public class RenderPanel extends JPanel implements MouseListener {
         instance = this;
         setPreferredSize(new Dimension(800, 800));
         renderData = new RenderData();
-        renderData.center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
 
         addMouseListener(this);
     }

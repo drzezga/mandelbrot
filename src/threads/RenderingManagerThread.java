@@ -49,7 +49,6 @@ public class RenderingManagerThread extends Thread {
         pixelsLeft = (x1 - x2) * (y1 - y2);
         this.threadType = threadType;
 
-        System.out.println(screenRatio);
         System.out.println("Running with " + Runtime.getRuntime().availableProcessors() + " cores");
     }
 
@@ -75,7 +74,7 @@ public class RenderingManagerThread extends Thread {
 
     @Override
     public void run() {
-        super.run();
+        superRun();
         RenderingTab renderingTab = RenderingTab.instance;
         startTime = System.nanoTime();
         renderingTab.setTime(0);
@@ -92,6 +91,10 @@ public class RenderingManagerThread extends Thread {
         RenderingTab.instance.setTime((float)(System.nanoTime() - startTime) / 1000000000);
         System.out.println("Rendering finished");
         RenderPanel.instance.repaint();
+    }
+
+    protected void superRun() {
+        super.run();
     }
 
     protected void startThreads() {
@@ -143,7 +146,12 @@ public class RenderingManagerThread extends Thread {
         if (color == null) {
             System.out.println("Color null: " + x + " " + y);
         } else {
-            image.setRGB(x, y, color.getRGB());
+            try {
+                image.setRGB(x, y, color.getRGB());
+            } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                System.err.println("Coordinate out of bounds: " + x + " | " + y);
+                throw new IndexOutOfBoundsException();
+            }
         }
     }
 

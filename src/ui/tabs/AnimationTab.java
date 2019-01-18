@@ -1,11 +1,14 @@
 package ui.tabs;
 
 import threads.AnimationRenderingThread;
+import threads.RenderingManagerThread;
 import ui.timeline.Timeline;
+import util.SettingsManager;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class AnimationTab extends JPanel {
 
@@ -53,14 +56,23 @@ public class AnimationTab extends JPanel {
         actionPanel.add(framerate);
 
         renderButton = new JButton("Render");
+        renderButton.addActionListener(e -> {
+            if (animationRenderingThread != null) {
+                if (animationRenderingThread.isAlive()) return;
+            }
+
+            animationRenderingThread = new AnimationRenderingThread(SettingsManager.getRenderingEngine(),this);
+            animationRenderingThread.start();
+        });
         actionPanel.add(renderButton);
 
-        progressBar = new JProgressBar();
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setPreferredSize(new Dimension(200, 24));
+
         progressBar.setString("Press the render button");
         progressBar.setStringPainted(true);
-        progressBar.setMaximum(1);
-        progressBar.setValue(1);
-        progressBar.setPreferredSize(new Dimension(200, 24));
+//        progressBar.setMaximum(1);
+//        progressBar.setValue(1);
         actionPanel.add(progressBar);
 
         controlPanel.add(actionPanel, BorderLayout.CENTER);
@@ -70,7 +82,7 @@ public class AnimationTab extends JPanel {
     }
 
     public int getFramerate() {
-        return (int) framerate.getValue();
+        return Integer.parseInt(framerate.getValue().toString());
     }
 
     public Timeline getTimeline() {

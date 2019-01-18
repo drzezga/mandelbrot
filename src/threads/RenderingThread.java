@@ -20,7 +20,9 @@ abstract public class RenderingThread extends Thread {
             PixelRenderData data = parent.fetchData();
             if (data != null && data.getClass() == ThreadStallData.class) {
                 try {
-                    wait(10);
+                    synchronized (this) {
+                        wait(10);
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

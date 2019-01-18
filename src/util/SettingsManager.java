@@ -98,4 +98,15 @@ public class SettingsManager {
     public static float getZPow() {
         return 2;
     }
+
+    public static void setThreshold(int threshold) {
+        VariablesTab.instance.threshold.setValue(threshold);
+    }
+
+    public static void setRenderData(RenderData rd) {
+        setCenter(rd.center);
+        setScale(rd.scale);
+        setThreshold(rd.threshold);
+        // TODO: Set zPow
+    }
 }

@@ -1,26 +1,27 @@
 package ui.timeline;
 
-import util.Complex;
 import util.RenderData;
-import util.SettingsManager;
 
-import java.math.BigDecimal;
+import java.awt.*;
 
 public class Keyframe {
     private RenderData renderData;
     private InterpolationType interpolationType;
-    public float position;
+    private float position;
     private boolean enabled = true;
+
+    public Color color;
 
     public Keyframe(float position, InterpolationType it) {
 //        renderData = rd;
         this.position = position;
         interpolationType = it;
         renderData = new RenderData();
-        renderData.center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
-        renderData.threshold = SettingsManager.getThreshold();
-        renderData.scale = SettingsManager.getScale();
-        renderData.zPow = SettingsManager.getZPow();
+        color = Color.RED;
+//        renderData.center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
+//        renderData.threshold = SettingsManager.getThreshold();
+//        renderData.scale = SettingsManager.getScale();
+//        renderData.zPow = SettingsManager.getZPow();
     }
 
     public void toggle() {
@@ -48,13 +49,22 @@ public class Keyframe {
 
     public RenderData getRenderData() { return renderData; }
 
+    public void setPosition(float pos) {
+        this.position = pos;
+    }
+
+    public float getPosition() {
+        return position;
+    }
+
     public enum InterpolationType {
         LINEAR,
         EASEINOUT,
         EASEIN,
         EASEOUT,
         CUBICHERMITE,
-        JUMP
+        JUMP,
+        WAIT
     }
 }
 

@@ -1,6 +1,7 @@
 package ui.timeline;
 
 import ui.RenderPanel;
+import util.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,24 +32,27 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         font = getFont();
         fm = getFontMetrics(font);
 
-        addKeyframe(new Keyframe(1, Keyframe.InterpolationType.EASEINOUT));
-        addKeyframe(new Keyframe(3.5f, Keyframe.InterpolationType.EASEINOUT));
-        addKeyframe(new Keyframe(5, Keyframe.InterpolationType.EASEINOUT));
+        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.EASEINOUT));
+
+//        addKeyframe(new Keyframe(1, Keyframe.InterpolationType.EASEINOUT));
+//        addKeyframe(new Keyframe(3.5f, Keyframe.InterpolationType.EASEINOUT));
+//        addKeyframe(new Keyframe(5, Keyframe.InterpolationType.EASEINOUT));
         addKeyframe(new Keyframe(7, Keyframe.InterpolationType.EASEINOUT));
         addKeyframe(new Keyframe(8, Keyframe.InterpolationType.EASEINOUT));
-        addKeyframe(new Keyframe(10, Keyframe.InterpolationType.EASEINOUT));
-        addKeyframe(new Keyframe(20, Keyframe.InterpolationType.EASEINOUT));
-        addKeyframe(new Keyframe(21, Keyframe.InterpolationType.EASEINOUT));
+//        addKeyframe(new Keyframe(10, Keyframe.InterpolationType.EASEINOUT));
+//        addKeyframe(new Keyframe(20, Keyframe.InterpolationType.EASEINOUT));
+//        addKeyframe(new Keyframe(21, Keyframe.InterpolationType.EASEINOUT));
     }
 
     public float getLength() {
-        Keyframe max = new Keyframe(0, Keyframe.InterpolationType.EASEINOUT);
+//        Keyframe max = new Keyframe(0, Keyframe.InterpolationType.EASEINOUT);
+        float maxPos = 0;
         for (int i = 0; i < keyframes.size(); i++) {
-            if (max.position < keyframes.get(i).position) {
-                max = keyframes.get(i);
+            if (maxPos < keyframes.get(i).getPosition()) {
+                maxPos = keyframes.get(i).getPosition();
             }
         }
-        return max.position;
+        return maxPos;
     }
 
     public ArrayList<Keyframe> getKeyframes() {
@@ -63,7 +67,7 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
 
     Keyframe findKeyframeAtTime(float time) {
         for (int i = 0; i < keyframes.size(); i++) {
-            if (keyframes.get(i).position == time) return keyframes.get(i);
+            if (keyframes.get(i).getPosition() == time) return keyframes.get(i);
         }
         return null;
     }
@@ -109,19 +113,19 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         // Drawing keyframes on cells
         for (int i = 0; i < keyframes.size(); i++) {
             Keyframe kf = keyframes.get(i);
-            if (kf.position >= position && kf.position <= position + scale) {
-                int pos = (int) ((kf.position - position) * pixelSecond);
+            if (kf.getPosition() >= position && kf.getPosition() <= position + scale) {
 //                int pos = (int) (pixelSecond * (kf.position % scale + (1 - position % 1) - 1));
-                drawKeyframe(g, pos, kf.getEnabled());
+                drawKeyframe(g, kf, pixelSecond);
             }
         }
 
         g.dispose();
     }
 
-    private void drawKeyframe(Graphics g, int x, boolean enabled) {
-        if (enabled) {
-            g.setColor(Color.RED);
+    private void drawKeyframe(Graphics g, Keyframe kf, float pixelSecond) {
+        int x = (int) ((kf.getPosition() - position) * pixelSecond);
+        if (kf.getEnabled()) {
+            g.setColor(kf.color);
         } else {
             g.setColor(Color.gray);
         }
@@ -152,8 +156,8 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
 
             for (i = 0; i < keyframes.size(); i++) {
                 Keyframe localkf = keyframes.get(i);
-                int pos = (int) ((localkf.position - position) * pixelSecond);
-                if (localkf.position >= position && localkf.position <= position + scale) {
+                int pos = (int) ((localkf.getPosition() - position) * pixelSecond);
+                if (localkf.getPosition() >= position && localkf.getPosition() <= position + scale) {
                     if (pos > e.getX() - 10 && pos < e.getX() + 10) {
                         kf = localkf;
                         break;
@@ -183,7 +187,13 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
                 repaint();
             });
             kfcm.setCurrentViewButton.addActionListener(ae -> {
+//                System.out.println("Setting this keyframe to current view");
                 finalKf.setRenderData(RenderPanel.instance.renderData.copy());
+            });
+            kfcm.setCurrentViewToThisButton.addActionListener(ae -> {
+//                System.out.println("Setting current view to this keyframe");
+                SettingsManager.setRenderData(finalKf.getRenderData().copy());
+                RenderPanel.instance.render(); // TODO: This needs to go
             });
             kfcm.show(e.getComponent(), e.getX(), e.getY());
             return;
@@ -195,8 +205,8 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         float pixelSecond = getWidth() / scale;
         for (int i = 0; i < keyframes.size(); i++) {
             Keyframe localkf = keyframes.get(i);
-            int pos = (int) ((localkf.position - position) * pixelSecond);
-            if (localkf.position >= position && localkf.position <= position + scale) {
+            int pos = (int) ((localkf.getPosition() - position) * pixelSecond);
+            if (localkf.getPosition() >= position && localkf.getPosition() <= position + scale) {
                 if (pos > e.getX() - 10 && pos < e.getX() + 10) {
                     draggedKeyframe = localkf;
                     return;
@@ -256,13 +266,10 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
             }
             repaint();
         } else if (SwingUtilities.isLeftMouseButton(e) && draggedKeyframe != null) {
-//            System.out.println((e.getX() - lastDraggedX) / (getWidth() / scale));
-//            System.out.println(Math.round((draggedKeyframe.position + (e.getX() - lastDraggedX) / (getWidth() / scale)) * 2) / 2f);
             float newPos = Math.round((position + e.getX() / (getWidth() / scale)) * 2) / 2f;
-            if (findKeyframeAtTime(newPos) == null) draggedKeyframe.position = newPos;
-//            System.out.println(draggedKeyframe.position);
-//            System.out.println("----------------------");
-            if (draggedKeyframe.position < 0) draggedKeyframe.position = 0;
+            if (newPos > 0) {
+                if (findKeyframeAtTime(newPos) == null) draggedKeyframe.setPosition(newPos);
+            }
             lastDraggedX = e.getX();
             repaint();
         }
