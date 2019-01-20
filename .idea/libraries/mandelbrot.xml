@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="mandelbrot">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/mandelbrot_jar/mandelbrot.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
