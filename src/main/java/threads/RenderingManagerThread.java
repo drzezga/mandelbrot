@@ -88,6 +88,9 @@ public class RenderingManagerThread extends Thread {
                 sleep(25);
             } catch (InterruptedException e) {}
         }
+
+        postProcess(image);
+
         RenderingTab.instance.setTime((float)(System.nanoTime() - startTime) / 1000000000);
         System.out.println("Rendering finished");
         RenderPanel.instance.repaint();
@@ -130,6 +133,18 @@ public class RenderingManagerThread extends Thread {
         }
     }
 
+    protected boolean areThreadsRunning() {
+        for (int i = 0; i < renderingThreads.length; i++) {
+            if (renderingThreads[i].isAlive())
+                return true;
+        }
+        return false;
+    }
+
+    protected void postProcess(BufferedImage img) {
+        // TODO: Supersampling and crosshair
+    }
+
     public PixelRenderData fetchData() {
         if (pixelsLeft > 0) {
             pixelsLeft--;
@@ -155,11 +170,5 @@ public class RenderingManagerThread extends Thread {
         }
     }
 
-    protected boolean areThreadsRunning() {
-        for (int i = 0; i < renderingThreads.length; i++) {
-            if (renderingThreads[i].isAlive())
-                return true;
-        }
-        return false;
-    }
+
 }

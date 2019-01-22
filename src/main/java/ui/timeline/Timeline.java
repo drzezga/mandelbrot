@@ -1,11 +1,14 @@
 package ui.timeline;
 
 import ui.RenderPanel;
+import util.Complex;
+import util.RenderData;
 import util.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class Timeline extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
@@ -32,16 +35,11 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         font = getFont();
         fm = getFontMetrics(font);
 
-        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.EASE_IN_OUT));
+        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.LINEAR));
 
-//        addKeyframe(new Keyframe(1, Keyframe.InterpolationType.EASE_IN_OUT));
-//        addKeyframe(new Keyframe(3.5f, Keyframe.InterpolationType.EASE_IN_OUT));
-//        addKeyframe(new Keyframe(5, Keyframe.InterpolationType.EASE_IN_OUT));
-        addKeyframe(new Keyframe(7, Keyframe.InterpolationType.EASE_IN_OUT));
-        addKeyframe(new Keyframe(8, Keyframe.InterpolationType.EASE_IN_OUT));
-//        addKeyframe(new Keyframe(10, Keyframe.InterpolationType.EASE_IN_OUT));
-//        addKeyframe(new Keyframe(20, Keyframe.InterpolationType.EASE_IN_OUT));
-//        addKeyframe(new Keyframe(21, Keyframe.InterpolationType.EASE_IN_OUT));
+        addKeyframe(new Keyframe(3, Keyframe.InterpolationType.LINEAR));
+        findKeyframeAtTime(3).setRenderData(findKeyframeAtTime(3).getRenderData().copy(new Complex(new BigDecimal(-0.34687), new BigDecimal(-0.64687)), 0.75));
+        addKeyframe(new Keyframe(7, Keyframe.InterpolationType.LINEAR));
     }
 
     public float getLength() {
@@ -175,6 +173,7 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
                 int dialogResult = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this keyframe?", "Warning", dialogButton);
                 if (dialogResult == 0) {
                     keyframes.remove(ii);
+                    keyframes.sort(new KeyframeSort());
                     repaint();
                 }
             });

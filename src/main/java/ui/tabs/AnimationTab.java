@@ -10,23 +10,17 @@ import java.awt.*;
 
 public class AnimationTab extends JPanel {
 
-    private JButton disableButton;
-    private JButton enableButton;
-    private JButton addButton;
-
     private Timeline timeline;
-    private JPanel controlPanel;
     private JFormattedTextField framerate;
 
     private JProgressBar progressBar;
-    private JButton renderButton;
 
     private boolean rendering = false;
 
-    AnimationRenderingThread animationRenderingThread;
+    private AnimationRenderingThread animationRenderingThread;
 
     public AnimationTab() {
-        controlPanel = new JPanel();
+        JPanel controlPanel = new JPanel();
 
         timeline = new Timeline();
         setLayout(new BorderLayout());
@@ -34,9 +28,9 @@ public class AnimationTab extends JPanel {
 
         JPanel actionPanel = new JPanel();
 
-        disableButton = new JButton("Disable all");
-        enableButton = new JButton("Enable all");
-        addButton = new JButton("New keyframe");
+        JButton disableButton = new JButton("Disable all");
+        JButton enableButton = new JButton("Enable all");
+        JButton addButton = new JButton("New keyframe");
         disableButton.addActionListener(e -> {
             timeline.getKeyframes().forEach((kf) -> kf.setEnabled(false));
             timeline.repaint();
@@ -59,11 +53,12 @@ public class AnimationTab extends JPanel {
         framerate.setColumns(4);
         actionPanel.add(framerate);
 
-        renderButton = new JButton("Render");
+        JButton renderButton = new JButton("Render");
         renderButton.addActionListener(e -> {
             if (animationRenderingThread != null) {
                 if (animationRenderingThread.isAlive()) return;
             }
+            if (rendering) return;
 
             animationRenderingThread = new AnimationRenderingThread(SettingsManager.getRenderingEngine(),this);
             animationRenderingThread.start();
@@ -108,7 +103,11 @@ public class AnimationTab extends JPanel {
             progressBar.setValue(0);
         } else {
             progressBar.setValue(progressBar.getMaximum());
-            progressBar.setString("Render time: " + seconds + "s");
+            if (seconds > 60) {
+                progressBar.setString("Render time: " + (int) Math.floor(seconds / 60) + "m, " + (int) Math.floor(seconds % 60) + "s");
+            } else {
+                progressBar.setString("Render time: " + seconds + "s");
+            }
             rendering = false;
         }
     }

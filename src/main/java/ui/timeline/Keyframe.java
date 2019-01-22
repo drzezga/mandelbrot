@@ -36,11 +36,6 @@ public class Keyframe {
         return enabled;
     }
 
-//    public Keyframe(PixelRenderData rd) {
-//        renderData = rd;
-//        interpolationType = InterpolationType.EASE_IN_OUT;
-//    }
-
     public void setRenderData(RenderData rd) {
         renderData = rd;
     }

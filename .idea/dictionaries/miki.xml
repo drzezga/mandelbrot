@@ -2,6 +2,7 @@
   <dictionary name="miki">
     <words>
       <w>framerate</w>
+      <w>muxer</w>
     </words>
   </dictionary>
 </component>

@@ -16,11 +16,7 @@ public class MainWindow extends JFrame {
     public static void main(String[] args) {
         try {
             // Set System L&F
-            if (UIManager.getSystemLookAndFeelClassName() != "com.sun.java.swing.plaf.motif.MotifLookAndFeel") {
-                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            } else {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch (UnsupportedLookAndFeelException | InstantiationException | ClassNotFoundException | IllegalAccessException e) {}
         instance = new MainWindow();
