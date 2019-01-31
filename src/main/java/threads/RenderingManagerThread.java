@@ -3,23 +3,25 @@ package threads;
 import colors.algorithms.ColorAlgorithm;
 import ui.RenderPanel;
 import ui.tabs.RenderingTab;
-import util.Complex;
-import util.PixelRenderData;
-import util.SettingsManager;
+import misc.Complex;
+import misc.PixelRenderData;
+import misc.SettingsManager;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
+
 public class RenderingManagerThread extends Thread {
 
-    BufferedImage image;
-    protected final Complex center;
-    protected final int w;
-    protected final int h;
-    protected final double scale;
+    protected BufferedImage image;
+    protected Complex center;
+    protected int w;
+    protected int h;
+    protected double scale;
     protected float screenRatio;
-    protected final int threshold;
-    protected final ColorAlgorithm colorAlgorithm;
+    protected int threshold;
+    protected ColorAlgorithm colorAlgorithm;
     protected ThreadType threadType;
 
     protected int x1;
@@ -33,48 +35,29 @@ public class RenderingManagerThread extends Thread {
 
     protected RenderingThread[] renderingThreads = new RenderingThread[Runtime.getRuntime().availableProcessors()];
 
-    public RenderingManagerThread(BufferedImage _bufferedImage, Complex _center, int _w, int _h, double _zoom, int _threshold, ColorAlgorithm _colorAlgorithm, ThreadType threadType, int x1, int y1, int x2, int y2) {
-        image = _bufferedImage;
-        center = _center;
-        w = _w;
-        h = _h;
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-        screenRatio = (float)w / (float)h;
-        scale = _zoom;
-        threshold = _threshold;
-        colorAlgorithm = _colorAlgorithm;
-        pixelsLeft = (x1 - x2) * (y1 - y2);
-        this.threadType = threadType;
+    public RenderingManagerThread(BufferedImage initialImage, ThreadType threadType, int _x1, int _y1, int _x2, int _y2) {
+        x1 = _x1;
+        y1 = _y1;
+        x2 = _x2;
+        y2 = _y2;
 
-        System.out.println("Running with " + Runtime.getRuntime().availableProcessors() + " cores");
-    }
+        image = createImage(initialImage);
 
-    public RenderingManagerThread(BufferedImage _bufferedImage, ThreadType threadType, int x1, int y1, int x2, int y2) {
-        image = _bufferedImage;
         center = SettingsManager.getCenter();
-        w = SettingsManager.getResolutionX();
-        h = SettingsManager.getResolutionY();
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-        screenRatio = (float)w / (float)h;
+
+        screenRatio = (float) w / (float) h;
         scale = SettingsManager.getScale();
         threshold = SettingsManager.getThreshold();
         colorAlgorithm = SettingsManager.getColorAlgorithm();
         pixelsLeft = (x2 - x1) * (y2 - y1);
         this.threadType = threadType;
 
-        System.out.println(screenRatio);
         System.out.println("Running with " + Runtime.getRuntime().availableProcessors() + " cores");
     }
 
     @Override
     public void run() {
-        superRun();
+        threadRun();
         RenderingTab renderingTab = RenderingTab.instance;
         startTime = System.nanoTime();
         renderingTab.setTime(0);
@@ -86,17 +69,19 @@ public class RenderingManagerThread extends Thread {
             try {
                 renderingTab.setProgress((x2 - x1) * (y2 - y1) - pixelsLeft);
                 sleep(25);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
         }
 
-        postProcess(image);
+        image = postProcess(image);
+
+        RenderPanel.instance.bufferedImage = image;
 
         RenderingTab.instance.setTime((float)(System.nanoTime() - startTime) / 1000000000);
         System.out.println("Rendering finished");
         RenderPanel.instance.repaint();
     }
 
-    protected void superRun() {
+    protected void threadRun() {
         super.run();
     }
 
@@ -141,8 +126,114 @@ public class RenderingManagerThread extends Thread {
         return false;
     }
 
-    protected void postProcess(BufferedImage img) {
-        // TODO: Supersampling and crosshair
+    protected BufferedImage createImage(BufferedImage initialImage) {
+        switch (SettingsManager.getSupersampleType()) {
+            case DISABLED:
+                w = SettingsManager.getResolutionX();
+                h = SettingsManager.getResolutionY();
+                break;
+            case X2:
+                w = SettingsManager.getResolutionX() * 2;
+                h = SettingsManager.getResolutionY() * 2;
+                x1 = x1 * 2;
+                x2 = x2 * 2;
+                y1 = y1 * 2;
+                y2 = y2 * 2;
+                break;
+            case X4:
+                w = SettingsManager.getResolutionX() * 4;
+                h = SettingsManager.getResolutionY() * 4;
+                x1 = x1 * 4;
+                x2 = x2 * 4;
+                y1 = y1 * 4;
+                y2 = y2 * 4;
+                break;
+            case X6:
+                w = SettingsManager.getResolutionX() * 6;
+                h = SettingsManager.getResolutionY() * 6;
+                x1 = x1 * 6;
+                x2 = x2 * 6;
+                y1 = y1 * 6;
+                y2 = y2 * 6;
+                break;
+            case X8:
+                w = SettingsManager.getResolutionX() * 8;
+                h = SettingsManager.getResolutionY() * 8;
+                x1 = x1 * 8;
+                x2 = x2 * 8;
+                y1 = y1 * 8;
+                y2 = y2 * 8;
+                break;
+            case X12:
+                w = SettingsManager.getResolutionX() * 12;
+                h = SettingsManager.getResolutionY() * 12;
+                x1 = x1 * 12;
+                x2 = x2 * 12;
+                y1 = y1 * 12;
+                y2 = y2 * 12;
+                break;
+            case X16:
+                w = SettingsManager.getResolutionX() * 16;
+                h = SettingsManager.getResolutionY() * 16;
+                x1 = x1 * 16;
+                x2 = x2 * 16;
+                y1 = y1 * 16;
+                y2 = y2 * 16;
+                break;
+        }
+
+        if (initialImage.getHeight() != h || initialImage.getWidth() != w) {
+            x1 = 0;
+            y1 = 0;
+            x2 = w;
+            y2 = h;
+            return new BufferedImage(w, h, TYPE_3BYTE_BGR);
+        } else {
+            // Only true, when supersampling is disabled
+            return initialImage;
+        }
+    }
+
+    protected static BufferedImage postProcess(BufferedImage img) {
+        switch (SettingsManager.getSupersampleType()) {
+            case DISABLED:
+                break;
+            case X2:
+                img = RenderPanel.createResizedCopy(img, img.getWidth() / 2, img.getHeight() / 2);
+                break;
+            case X4:
+                img = RenderPanel.createResizedCopy(img, img.getWidth() / 4, img.getHeight() / 4);
+                break;
+            case X6:
+                img = RenderPanel.createResizedCopy(img, img.getWidth() / 6, img.getHeight() / 6);
+                break;
+            case X8:
+                img = RenderPanel.createResizedCopy(img, img.getWidth() / 8, img.getHeight() / 8);
+                break;
+            case X12:
+                img = RenderPanel.createResizedCopy(img, img.getWidth() / 12, img.getHeight() / 12);
+                break;
+            case X16:
+                img = RenderPanel.createResizedCopy(img, img.getWidth() / 16, img.getHeight() / 16);
+                break;
+        }
+        if (SettingsManager.isCrosshairEnabled()) {
+            Graphics g = img.createGraphics();
+            int width = img.getWidth();
+            int height = img.getHeight();
+            int rectWidth = 4;
+            int rectHeight = 10;
+            int gap = 16;
+            // Upper rectangle
+            g.drawRect(width / 2 - rectWidth / 2, height / 2 - rectHeight - gap / 2, rectWidth, rectHeight);
+            // Right rectangle
+            g.drawRect(width / 2 + gap / 2, height / 2 - rectWidth / 2, rectHeight, rectWidth);
+            // Bottom rectangle
+            g.drawRect(width / 2 - rectWidth / 2, height / 2 + gap / 2, rectWidth, rectHeight);
+            // Left rectangle
+            g.drawRect(width / 2 - gap / 2 - rectHeight, height / 2 - rectWidth / 2, rectHeight, rectWidth);
+        }
+        return img;
     }
 
     public PixelRenderData fetchData() {
@@ -169,6 +260,5 @@ public class RenderingManagerThread extends Thread {
             }
         }
     }
-
 
 }

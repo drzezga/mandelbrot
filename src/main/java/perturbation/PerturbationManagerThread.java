@@ -4,8 +4,8 @@ import colors.algorithms.ColorAlgorithm;
 import threads.ThreadType;
 import ui.RenderPanel;
 import ui.tabs.RenderingTab;
-import util.Complex;
-import util.PixelRenderData;
+import misc.Complex;
+import misc.PixelRenderData;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

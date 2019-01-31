@@ -1,6 +1,6 @@
 package ui.timeline;
 
-import util.RenderData;
+import misc.RenderData;
 
 import java.awt.*;
 
@@ -70,7 +70,9 @@ public class Keyframe {
         EASE_OUT,
         CUBIC_HERMITE,
         JUMP,
-        STALL
+        STALL,
+        CIRCLE_SPHERE,
+        RELATIVE_LINEAR
     }
 }
 

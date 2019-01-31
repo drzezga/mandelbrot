@@ -1,7 +1,7 @@
 package threads;
 
-import util.Complex;
-import util.PixelRenderData;
+import misc.Complex;
+import misc.PixelRenderData;
 
 public class PaletteRenderingThread extends RenderingThread {
 

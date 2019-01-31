@@ -35,14 +35,5 @@ public class KeyframePropertiesWindow extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
-
-
-        // TODO: Add:
-        //  - Interpolation type
-        //  - Position
-        //  - Threshold
-        //  - Scale
-        //  - Power of z
-        //  -
     }
 }

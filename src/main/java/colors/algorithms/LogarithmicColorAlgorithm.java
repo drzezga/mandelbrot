@@ -1,7 +1,7 @@
 package colors.algorithms;
 
 import colors.palettes.ColorPalette;
-import util.Complex;
+import misc.Complex;
 
 import java.awt.*;
 

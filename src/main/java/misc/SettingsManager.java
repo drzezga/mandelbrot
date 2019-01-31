@@ -1,4 +1,4 @@
-package util;
+package misc;
 
 import colors.algorithms.ColorAlgorithm;
 import colors.algorithms.LogarithmicColorAlgorithm;
@@ -108,5 +108,13 @@ public class SettingsManager {
         setScale(rd.scale);
         setThreshold(rd.threshold);
         // TODO: Set zPow
+    }
+
+    public static boolean isCrosshairEnabled() {
+        return SettingsTab.instance.crosshairCheckBox.isSelected();
+    }
+
+    public static SupersampleType getSupersampleType() {
+        return (SupersampleType) SettingsTab.instance.supersampleType.getSelectedItem();
     }
 }

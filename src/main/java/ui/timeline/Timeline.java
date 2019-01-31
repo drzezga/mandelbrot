@@ -1,9 +1,8 @@
 package ui.timeline;
 
 import ui.RenderPanel;
-import util.Complex;
-import util.RenderData;
-import util.SettingsManager;
+import misc.Complex;
+import misc.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,11 +34,22 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         font = getFont();
         fm = getFontMetrics(font);
 
-        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.LINEAR));
+        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.RELATIVE_LINEAR));
 
-        addKeyframe(new Keyframe(3, Keyframe.InterpolationType.LINEAR));
-        findKeyframeAtTime(3).setRenderData(findKeyframeAtTime(3).getRenderData().copy(new Complex(new BigDecimal(-0.34687), new BigDecimal(-0.64687)), 0.75));
-        addKeyframe(new Keyframe(7, Keyframe.InterpolationType.LINEAR));
+//        addKeyframe(new Keyframe(3, Keyframe.InterpolationType.LINEAR));
+//        findKeyframeAtTime(3).setRenderData(findKeyframeAtTime(3).getRenderData().copy(new Complex(new BigDecimal(-0.3457031189), new BigDecimal(-0.632812509)), 0.0234375));
+//        addKeyframe(new Keyframe(7, Keyframe.InterpolationType.LINEAR));
+
+//        addKeyframe(new Keyframe(2, Keyframe.InterpolationType.RELATIVE_LINEAR));
+//        findKeyframeAtTime(2).setRenderData(findKeyframeAtTime(2).getRenderData().copy(new Complex(new BigDecimal(-0.3457031189), new BigDecimal(-0.632812509)), 0.0234375));
+//        addKeyframe(new Keyframe(4, Keyframe.InterpolationType.RELATIVE_LINEAR));
+
+        addKeyframe(new Keyframe(2, Keyframe.InterpolationType.RELATIVE_LINEAR));
+        addKeyframe(new Keyframe(4, Keyframe.InterpolationType.RELATIVE_LINEAR));
+
+//        findKeyframeAtTime(0).setRenderData(findKeyframeAtTime(0).getRenderData().copy(new Complex(new BigDecimal("-0.3089355403026274871081113815"), new BigDecimal("-0.6385254001397697720")), 3));
+//        findKeyframeAtTime(2).setRenderData(findKeyframeAtTime(2).getRenderData().copy(new Complex(new BigDecimal("-0.3089355403026274871081113815"), new BigDecimal("-0.6385254001397697720")), 0.00292968));
+//        findKeyframeAtTime(4).setRenderData(findKeyframeAtTime(4).getRenderData().copy(new Complex(new BigDecimal("-0.3089355403026274871081113815"), new BigDecimal("-0.6385254001397697720")), 3));
     }
 
     public float getLength() {
@@ -203,7 +213,7 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
             kfcm.setCurrentViewToThisButton.addActionListener(ae -> {
 //                System.out.println("Setting current view to this keyframe");
                 SettingsManager.setRenderData(finalKf.getRenderData().copy());
-                RenderPanel.instance.render(); // TODO: This needs to go
+                RenderPanel.instance.render();
             });
             kfcm.show(e.getComponent(), e.getX(), e.getY());
             return;
@@ -213,8 +223,7 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         lastDraggedX = e.getX();
 
         float pixelSecond = getWidth() / scale;
-        for (int i = 0; i < keyframes.size(); i++) {
-            Keyframe localKf = keyframes.get(i);
+        for (Keyframe localKf : keyframes) {
             int pos = (int) ((localKf.getPosition() - position) * pixelSecond);
             if (localKf.getPosition() >= position && localKf.getPosition() <= position + scale) {
                 if (pos > e.getX() - 10 && pos < e.getX() + 10) {

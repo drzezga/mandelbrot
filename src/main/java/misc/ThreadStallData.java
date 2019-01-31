@@ -1,4 +1,4 @@
-package util;
+package misc;
 
 import colors.algorithms.ColorAlgorithm;
 

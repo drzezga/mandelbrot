@@ -1,4 +1,4 @@
-package util;
+package misc;
 
 import java.math.BigDecimal;
 
@@ -10,8 +10,12 @@ public class Complex {
     public static BigDecimal one = new BigDecimal("1");
 
     public Complex(float _r, float _i) {
-        r = new BigDecimal(Float.toString(_r));
-        i = new BigDecimal(Float.toString(_i));
+//        try {
+            r = new BigDecimal(Float.toString(_r));
+            i = new BigDecimal(Float.toString(_i));
+//        } catch (java.lang.NumberFormatException e) {
+//            System.err.println(_r + " " + _i);
+//        }
     }
     public Complex(BigDecimal _r, BigDecimal _i) {
         r = _r;

@@ -15,8 +15,8 @@ public class PaletteSelectComboBox extends JPanel {
     public HashMap<String, String> algorithmHashMap = new HashMap<>();
     public HashMap<String, ColorPalette> paletteHashMap = new HashMap<>();
 
-    public JComboBox algorithm;
-    public JComboBox palette;
+    public JComboBox<Object> algorithm;
+    public JComboBox<Object> palette;
 
     public PaletteSelectComboBox() {
         instance = this;
@@ -25,14 +25,26 @@ public class PaletteSelectComboBox extends JPanel {
         algorithmHashMap.put("Logarithmic", "Logarithmic");
         algorithmHashMap.put("Smooth", "Smooth");
 
-        paletteHashMap.put("Black and white", new ColorPalette(new Color(0, 0, 0), new Color(255, 255, 255)));
+        paletteHashMap.put("Black and white", new ColorPalette(
+                new Color(0, 0, 0),
+                new Color(255, 255, 255)
+        ));
         paletteHashMap.put("BRG", new ColorPalette(
                 new Color(0, 0, 255),
                 new Color(255, 0, 0),
                 new Color(0, 255, 0)));
         paletteHashMap.put("HSB", new HSBColorPalette());
-        paletteHashMap.put("Wikipedia", new ConstantFillColorPalette(new Color(0, 0, 0), new Color(1, 6, 97), new Color(159, 243, 230), new Color(245, 197, 1)));
-        paletteHashMap.put("Looping Test", new LoopingColorPalette(512, 2, new Color(1, 6, 97), new Color(159, 243, 230), new Color(245, 197, 1)));
+        paletteHashMap.put("Wikipedia", new ConstantFillColorPalette(
+                new Color(0, 0, 0),
+                new Color(1, 6, 97),
+                new Color(159, 243, 230),
+                new Color(245, 197, 1)
+        ));
+        paletteHashMap.put("Looping Test", new LoopingColorPalette(512, 2,
+                new Color(1, 6, 97),
+                new Color(159, 243, 230),
+                new Color(245, 197, 1)
+        ));
         paletteHashMap.put("Test", new ExtendedConstantFillColorPalette(
                 512,
                 new Color(0, 0, 0),
@@ -47,6 +59,12 @@ public class PaletteSelectComboBox extends JPanel {
                 new Color(150, 137, 123),
                 new Color(28, 202, 216)
         ));
+        paletteHashMap.put("Subtle black", new ConstantFillColorPalette(
+                new Color(33, 33, 33),
+                new Color(33, 33, 33),
+                new Color(0, 0, 0),
+                new Color(0, 0, 0)
+        ));
 
         ArrayList<String> algorithmComboBoxValues = new ArrayList<>();
         ArrayList<String> paletteComboBoxValues = new ArrayList<>();
@@ -54,8 +72,8 @@ public class PaletteSelectComboBox extends JPanel {
         algorithmHashMap.forEach((k, v) -> algorithmComboBoxValues.add(k));
         paletteHashMap.forEach((k, v) -> paletteComboBoxValues.add(k));
 
-        algorithm = new JComboBox(algorithmComboBoxValues.toArray());
-        palette = new JComboBox(paletteComboBoxValues.toArray());
+        algorithm = new JComboBox<>(algorithmComboBoxValues.toArray());
+        palette = new JComboBox<>(paletteComboBoxValues.toArray());
 
         algorithm.setSelectedItem("Simple");
         palette.setSelectedItem("Wikipedia");

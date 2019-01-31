@@ -1,7 +1,7 @@
 package threads;
 
-import util.PixelRenderData;
-import util.ThreadStallData;
+import misc.PixelRenderData;
+import misc.ThreadStallData;
 
 abstract public class RenderingThread extends Thread {
 

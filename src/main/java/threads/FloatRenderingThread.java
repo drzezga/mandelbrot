@@ -1,9 +1,11 @@
 package threads;
 
-import util.Complex;
-import util.PixelRenderData;
+import misc.Complex;
+import misc.PixelRenderData;
 
 import java.awt.*;
+
+import static java.lang.Float.NaN;
 
 public class FloatRenderingThread extends RenderingThread {
 

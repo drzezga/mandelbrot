@@ -1,4 +1,4 @@
-package util;
+package misc;
 
 import javax.swing.text.NumberFormatter;
 import java.math.BigDecimal;

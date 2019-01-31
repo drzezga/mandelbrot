@@ -3,7 +3,7 @@ package ui.tabs;
 import threads.AnimationRenderingThread;
 import ui.timeline.Keyframe;
 import ui.timeline.Timeline;
-import util.SettingsManager;
+import misc.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -59,6 +59,7 @@ public class AnimationTab extends JPanel {
                 if (animationRenderingThread.isAlive()) return;
             }
             if (rendering) return;
+            if (timeline.getKeyframes().size() < 2) return;
 
             animationRenderingThread = new AnimationRenderingThread(SettingsManager.getRenderingEngine(),this);
             animationRenderingThread.start();
@@ -104,7 +105,7 @@ public class AnimationTab extends JPanel {
         } else {
             progressBar.setValue(progressBar.getMaximum());
             if (seconds > 60) {
-                progressBar.setString("Render time: " + (int) Math.floor(seconds / 60) + "m, " + (int) Math.floor(seconds % 60) + "s");
+                progressBar.setString("Render time: " + (int) Math.floor(seconds / 60) + "m " + (int) Math.floor(seconds % 60) + "s");
             } else {
                 progressBar.setString("Render time: " + seconds + "s");
             }

@@ -19,7 +19,9 @@ public class KeyframeContextMenu extends JPopupMenu {
         setCurrentViewToThisButton = new JMenuItem("Go");
 
         add(propButton);
-        add(delButton);
+        if (!(kf instanceof ImmutableKeyframe)) {
+            add(delButton);
+        }
         add(cloneButton);
         add(toggleButton);
         add(new JPopupMenu.Separator());

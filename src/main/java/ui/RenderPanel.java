@@ -2,9 +2,9 @@ package ui;
 
 import com.sun.javafx.scene.traversal.Direction;
 import threads.RenderingManagerThread;
-import util.Complex;
-import util.RenderData;
-import util.SettingsManager;
+import misc.Complex;
+import misc.RenderData;
+import misc.SettingsManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -90,8 +90,7 @@ public class RenderPanel extends JPanel implements MouseListener {
             bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
 
-        renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
-                SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(),0, 0, width, height);
+        renderingManagerThread = new RenderingManagerThread(bufferedImage, SettingsManager.getRenderingEngine(),0, 0, width, height);
 
         renderingManagerThread.start();
     }
@@ -114,27 +113,22 @@ public class RenderPanel extends JPanel implements MouseListener {
         switch(dir) {
             case RIGHT:
                 bufferedImage = shiftImage(bufferedImage, p, 0);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
-                        SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, 0, p, height);
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, SettingsManager.getRenderingEngine(),0, 0, p, height);
                 break;
             case LEFT:
                 bufferedImage = shiftImage(bufferedImage, -p, 0);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
-                        SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), width - p, 0, width, height);
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, SettingsManager.getRenderingEngine(), width - p, 0, width, height);
                 break;
             case UP:
                 bufferedImage = shiftImage(bufferedImage, 0, -p);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
-                        SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, height - p, width, height);
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, SettingsManager.getRenderingEngine(), 0, height - p, width, height);
                 break;
             case DOWN:
                 bufferedImage = shiftImage(bufferedImage, 0, p);
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
-                        SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, 0, width, p);
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, SettingsManager.getRenderingEngine(), 0, 0, width, p);
                 break;
             default:
-                renderingManagerThread = new RenderingManagerThread(bufferedImage, renderData.center, width, height, renderData.scale, renderData.threshold,
-                        SettingsManager.getColorAlgorithm(), SettingsManager.getRenderingEngine(), 0, 0, width, height);
+                renderingManagerThread = new RenderingManagerThread(bufferedImage, SettingsManager.getRenderingEngine(), 0, 0, width, height);
                 break;
         }
 
