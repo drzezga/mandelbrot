@@ -1,4 +1,4 @@
-package ui.timeline;
+package ui.animation;
 
 import misc.RenderData;
 
@@ -20,8 +20,15 @@ public class Keyframe {
         color = Color.RED;
 //        renderData.center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
 //        renderData.threshold = SettingsManager.getThreshold();
-//        renderData.scale = SettingsManager.getScale();
+//        renderData.scale = SettingsManager.getZoom();
 //        renderData.zPow = SettingsManager.getZPow();
+    }
+
+    public Keyframe(float position, InterpolationType it, RenderData rd) {
+        this.position = position;
+        interpolationType = it;
+        renderData = rd.copy();
+        color = Color.RED;
     }
 
     public void toggle() {
@@ -71,8 +78,7 @@ public class Keyframe {
         CUBIC_HERMITE,
         JUMP,
         STALL,
-        CIRCLE_SPHERE,
-        RELATIVE_LINEAR
+        CIRCLE_SPHERE
     }
 }
 

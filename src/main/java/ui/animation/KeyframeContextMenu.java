@@ -1,4 +1,4 @@
-package ui.timeline;
+package ui.animation;
 
 import javax.swing.*;
 

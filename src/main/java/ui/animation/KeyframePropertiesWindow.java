@@ -1,4 +1,4 @@
-package ui.timeline;
+package ui.animation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ public class KeyframePropertiesWindow extends JFrame {
         panel.add(new JLabel("Keyframe properties"));
         panel.add(new JLabel("Pos Real: " + kf.getRenderData().center.r.toString()));
         panel.add(new JLabel("Pos Imag: " + kf.getRenderData().center.i.toString()));
-        panel.add(new JLabel("Scale: " + kf.getRenderData().scale));
+        panel.add(new JLabel("Zoom: " + kf.getRenderData().zoom));
         panel.add(new JLabel("Threshold: " + kf.getRenderData().threshold));
         panel.add(new JLabel("Z power: " + kf.getRenderData().zPow));
         panel.add(new JLabel("Interpolation type:"));

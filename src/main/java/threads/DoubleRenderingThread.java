@@ -15,10 +15,11 @@ public class DoubleRenderingThread extends RenderingThread {
         double centerR = renderData.center.r.doubleValue();
         double centerI = renderData.center.i.doubleValue();
 
+        double scale = 3 / renderData.zoom;
         double cr = map(renderData.x, 0, renderData.w,
-                centerR - (renderData.scale / 2f * renderData.screenRatio), centerR + renderData.scale / 2f * renderData.screenRatio);
+                centerR - (scale / 2f * renderData.screenRatio), centerR + scale / 2f * renderData.screenRatio);
         double ci = map(renderData.y, 0, renderData.h,
-                centerI - (renderData.scale / 2f), centerI + renderData.scale / 2f);
+                centerI - (scale / 2f), centerI + scale / 2f);
 
         int n = calculateMandelbrot(cr, ci, renderData.threshold);
 

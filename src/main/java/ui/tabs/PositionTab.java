@@ -11,13 +11,13 @@ public class PositionTab extends JPanel {
 
     public JTextField positionRealComboBox;
     public JTextField positionImaginaryComboBox;
-    public JTextField scaleComboBox;
+    public JTextField zoomComboBox;
 
     public PositionTab() {
         instance = this;
         positionRealComboBox = new JTextField("-0.75");
         positionImaginaryComboBox = new JTextField("0");
-        scaleComboBox = new JTextField("3");
+        zoomComboBox = new JTextField("1");
 
         JButton resetPosButton = new JButton("Reset position");
         JButton resetScaleButton = new JButton("Reset scale");
@@ -34,11 +34,11 @@ public class PositionTab extends JPanel {
 
         labelPanel.add(new JLabel("Real", SwingConstants.CENTER), BorderLayout.PAGE_START);
         labelPanel.add(new JLabel(" Imaginary ", SwingConstants.CENTER), BorderLayout.CENTER);
-        labelPanel.add(new JLabel("Scale", SwingConstants.CENTER), BorderLayout.PAGE_END);
+        labelPanel.add(new JLabel("Zoom", SwingConstants.CENTER), BorderLayout.PAGE_END);
 
         textBoxPanel.add(positionRealComboBox, BorderLayout.PAGE_START);
         textBoxPanel.add(positionImaginaryComboBox, BorderLayout.CENTER);
-        textBoxPanel.add(scaleComboBox, BorderLayout.PAGE_END);
+        textBoxPanel.add(zoomComboBox, BorderLayout.PAGE_END);
 
         buttonPanel.add(resetPosButton, BorderLayout.CENTER);
         buttonPanel.add(resetScaleButton, BorderLayout.PAGE_END);
@@ -53,7 +53,7 @@ public class PositionTab extends JPanel {
             RenderPanel.instance.render();
         });
         resetScaleButton.addActionListener(e -> {
-            scaleComboBox.setText("3");
+            zoomComboBox.setText("1");
             RenderPanel.instance.render();
         });
     }

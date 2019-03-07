@@ -5,14 +5,14 @@ import java.math.RoundingMode;
 
 public class RenderData {
     public Complex center;
-    public double scale;
+    public double zoom;
     public int threshold;
     public float zPow;
 
     // This constructor provides default values for before the ui is constructed and SettingsManager can be used
     public RenderData() {
         center = new Complex(new BigDecimal("-0.75"), new BigDecimal("0"));
-        scale = 3;
+        zoom = 3;
         threshold = 200;
         zPow = 2;
     }
@@ -20,16 +20,16 @@ public class RenderData {
     public RenderData copy() {
         RenderData tempData = new RenderData();
         tempData.center = center.copy();
-        tempData.scale = scale;
+        tempData.zoom = zoom;
         tempData.threshold = threshold;
         tempData.zPow = zPow;
         return tempData;
     }
 
-    public RenderData copy(Complex newPos, double newScale) {
+    public RenderData copy(Complex newPos, double newZoom) {
         RenderData tempData = new RenderData();
         tempData.center = newPos;
-        tempData.scale = newScale;
+        tempData.zoom = newZoom;
         tempData.threshold = threshold;
         tempData.zPow = zPow;
         return tempData;
@@ -50,7 +50,7 @@ public class RenderData {
         );
 
 //        System.out.println((Math.min(from.scale, to.scale) - Math.max(from.scale, to.scale)));
-        rd.scale = (to.scale - from.scale) * t / d + from.scale;
+        rd.zoom = (to.zoom - from.zoom) * t / d + from.zoom;
         rd.threshold = Math.round((to.threshold - from.threshold) * t / d + from.threshold);
         rd.zPow = (to.zPow - from.zPow) * t / d + from.zPow;
 
@@ -75,7 +75,7 @@ public class RenderData {
         );
 
         // Rest
-        rd.scale = -(to.scale - from.scale) / 2 * ((float) Math.cos(Math.PI * t / d) - 1) + from.scale;
+        rd.zoom = -(to.zoom - from.zoom) / 2 * ((float) Math.cos(Math.PI * t / d) - 1) + from.zoom;
         rd.threshold = (int) (-(to.threshold - from.threshold) / 2 * ((float) Math.cos(Math.PI * t / d) - 1) + from.threshold);
         rd.zPow = -(to.zPow - from.zPow) / 2 * ((float) Math.cos(Math.PI * t / d) - 1) + from.zPow;
 
@@ -100,7 +100,7 @@ public class RenderData {
         );
 
 //        System.out.println((Math.min(from.scale, to.scale) - Math.max(from.scale, to.scale)));
-        rd.scale = from.scale + (to.scale - from.scale) * t / d;
+        rd.zoom = from.zoom + (to.zoom - from.zoom) * t / d;
         rd.threshold = Math.round((to.threshold - from.threshold) * t / d + from.threshold);
         rd.zPow = (to.zPow - from.zPow) * t / d + from.zPow;
 

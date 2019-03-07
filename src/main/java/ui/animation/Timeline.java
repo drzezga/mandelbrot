@@ -1,7 +1,7 @@
-package ui.timeline;
+package ui.animation;
 
-import ui.RenderPanel;
 import misc.Complex;
+import ui.RenderPanel;
 import misc.SettingsManager;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class Timeline extends JPanel implements MouseWheelListener, MouseListener, MouseMotionListener {
     private float position = 0; // Position of starting point in seconds
-    private float scale = 20; // Seconds in visible timeline width
+    private float scale = 20; // Seconds in visible animation width
     private ArrayList<Keyframe> keyframes;
 
     private boolean isDragging = false;
@@ -34,18 +34,18 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         font = getFont();
         fm = getFontMetrics(font);
 
-        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.RELATIVE_LINEAR));
+        addKeyframe(new ImmutableKeyframe(0, Keyframe.InterpolationType.LINEAR));
 
-//        addKeyframe(new Keyframe(3, Keyframe.InterpolationType.LINEAR));
-//        findKeyframeAtTime(3).setRenderData(findKeyframeAtTime(3).getRenderData().copy(new Complex(new BigDecimal(-0.3457031189), new BigDecimal(-0.632812509)), 0.0234375));
-//        addKeyframe(new Keyframe(7, Keyframe.InterpolationType.LINEAR));
+        addKeyframe(new Keyframe(3, Keyframe.InterpolationType.LINEAR));
+        findKeyframeAtTime(3).setRenderData(findKeyframeAtTime(3).getRenderData().copy(new Complex(new BigDecimal(-0.3457031189), new BigDecimal(-0.632812509)), 3 / 0.0234375));
+        addKeyframe(new Keyframe(7, Keyframe.InterpolationType.LINEAR));
 
 //        addKeyframe(new Keyframe(2, Keyframe.InterpolationType.RELATIVE_LINEAR));
 //        findKeyframeAtTime(2).setRenderData(findKeyframeAtTime(2).getRenderData().copy(new Complex(new BigDecimal(-0.3457031189), new BigDecimal(-0.632812509)), 0.0234375));
 //        addKeyframe(new Keyframe(4, Keyframe.InterpolationType.RELATIVE_LINEAR));
 
-        addKeyframe(new Keyframe(2, Keyframe.InterpolationType.RELATIVE_LINEAR));
-        addKeyframe(new Keyframe(4, Keyframe.InterpolationType.RELATIVE_LINEAR));
+//        addKeyframe(new Keyframe(2, Keyframe.InterpolationType.LINEAR));
+//        addKeyframe(new Keyframe(4, Keyframe.InterpolationType.LINEAR));
 
 //        findKeyframeAtTime(0).setRenderData(findKeyframeAtTime(0).getRenderData().copy(new Complex(new BigDecimal("-0.3089355403026274871081113815"), new BigDecimal("-0.6385254001397697720")), 3));
 //        findKeyframeAtTime(2).setRenderData(findKeyframeAtTime(2).getRenderData().copy(new Complex(new BigDecimal("-0.3089355403026274871081113815"), new BigDecimal("-0.6385254001397697720")), 0.00292968));
@@ -73,9 +73,9 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         repaint();
     }
 
-    Keyframe findKeyframeAtTime(float time) {
-        for (int i = 0; i < keyframes.size(); i++) {
-            if (keyframes.get(i).getPosition() == time) return keyframes.get(i);
+    protected Keyframe findKeyframeAtTime(float time) {
+        for (Keyframe keyframe : keyframes) {
+            if (keyframe.getPosition() == time) return keyframe;
         }
         return null;
     }
@@ -93,9 +93,9 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         // Drawing the missing number when value at the start isn't shown fully
         g.setColor(Color.black);
         if (position % 1 != 0 && position >= 0) {
-            g.drawString((int) Math.ceil(position) + "'", (int) lineX, getHeight() / 2 + 4);
+            g.drawString((int) Math.ceil(position) + "\"", (int) lineX, getHeight() / 2 + 4);
         } else {
-            g.drawString(1 + (int) Math.ceil(position) + "'", (int) lineX, getHeight() / 2 + 4);
+            g.drawString(1 + (int) Math.ceil(position) + "\"", (int) lineX, getHeight() / 2 + 4);
         }
 
         // Drawing cells and numbers inside them
@@ -105,9 +105,9 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
             g.drawLine((int) lineX, 0, (int) lineX, getHeight());
             g.setColor(Color.black);
             if (position % 1 != 0 && position >= 0) {
-                g.drawString((int) (i + 1 + Math.ceil(position)) + "'", (int) lineX + (int) (pixelSecond / 2) - fm.stringWidth((int) (i + 2 + Math.ceil(position)) + "'") / 2 + 2, getHeight() / 2 + 4);
+                g.drawString((int) (i + 1 + Math.ceil(position)) + "\"", (int) lineX + (int) (pixelSecond / 2) - fm.stringWidth((int) (i + 2 + Math.ceil(position)) + "\"") / 2 + 2, getHeight() / 2 + 4);
             } else {
-                g.drawString((int) (i + 2 + Math.ceil(position)) + "'", (int) lineX + (int) (pixelSecond / 2) - fm.stringWidth((int) (i + 2 + Math.ceil(position)) + "'") / 2 + 2, getHeight() / 2 + 4);
+                g.drawString((int) (i + 2 + Math.ceil(position)) + "\"", (int) lineX + (int) (pixelSecond / 2) - fm.stringWidth((int) (i + 2 + Math.ceil(position)) + "\"") / 2 + 2, getHeight() / 2 + 4);
             }
         }
 
@@ -121,6 +121,14 @@ public class Timeline extends JPanel implements MouseWheelListener, MouseListene
         // Drawing keyframes on cells
         for (int i = 0; i < keyframes.size(); i++) {
             Keyframe kf = keyframes.get(i);
+            // Drawing lines behind keyframes
+            if (i + 1 != keyframes.size()) {
+                g.setColor(kf.color);
+                int x = (int) ((kf.getPosition() - position) * pixelSecond);
+                int nextX = (int) ((keyframes.get(i + 1).getPosition() - position) * pixelSecond);
+                g.drawRect(x, getHeight() / 2 - 6, nextX - x - 10, 12);
+            }
+
             if (kf.getPosition() >= position && kf.getPosition() <= position + scale) {
 //                int pos = (int) (pixelSecond * (kf.position % scale + (1 - position % 1) - 1));
                 drawKeyframe(g, kf, pixelSecond);

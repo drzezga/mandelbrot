@@ -17,11 +17,12 @@ public class BigDecimalRenderingThread extends RenderingThread {
 
     @Override
     public void calculate(PixelRenderData renderData) {
+        double scale = 3 / renderData.zoom;
         Complex c = new Complex(
                 map(renderData.x, 0, renderData.w,
-                        renderData.center.r.subtract(new BigDecimal(renderData.scale / 2f * renderData.screenRatio)), renderData.center.r.add(new BigDecimal(renderData.scale / 2f * renderData.screenRatio))),
+                        renderData.center.r.subtract(new BigDecimal(scale / 2f * renderData.screenRatio)), renderData.center.r.add(new BigDecimal(scale / 2f * renderData.screenRatio))),
                 map(renderData.y, 0, renderData.h,
-                        renderData.center.i.subtract(new BigDecimal(renderData.scale / 2f)), renderData.center.i.add(new BigDecimal(renderData.scale / 2f))));
+                        renderData.center.i.subtract(new BigDecimal(scale / 2f)), renderData.center.i.add(new BigDecimal(scale / 2f))));
 
         int n = calculateMandelbrot(c, renderData.threshold);
 

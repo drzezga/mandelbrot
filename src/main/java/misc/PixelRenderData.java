@@ -6,7 +6,7 @@ public class PixelRenderData {
     public final int x;
     public final int y;
     public final Complex center;
-    public final double scale;
+    public final double zoom;
     public final float screenRatio;
     public final int w;
     public final int h;
@@ -18,7 +18,7 @@ public class PixelRenderData {
         this.x = x;
         this.y = y;
         this.center = center;
-        this.scale = scale;
+        this.zoom = scale;
         this.screenRatio = screenRatio;
         this.w = w;
         this.h = h;

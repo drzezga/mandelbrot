@@ -45,11 +45,11 @@ public class KeyHandler implements KeyListener {
                     renderPanel.moveRight(40);
                     break;
                 case 82: // r - scale in
-                    PositionTab.instance.scaleComboBox.setText( Double.toString(renderPanel.renderData.scale / 2));
+                    PositionTab.instance.zoomComboBox.setText( Double.toString(renderPanel.renderData.zoom * 2));
                     renderPanel.render();
                     break;
                 case 70: // f - scale out
-                    PositionTab.instance.scaleComboBox.setText( Double.toString(renderPanel.renderData.scale * 2));
+                    PositionTab.instance.zoomComboBox.setText( Double.toString(renderPanel.renderData.zoom / 2));
                     renderPanel.render();
                     break;
                 case 90: // z - threshold -= 50

@@ -46,7 +46,7 @@ public class RenderingManagerThread extends Thread {
         center = SettingsManager.getCenter();
 
         screenRatio = (float) w / (float) h;
-        scale = SettingsManager.getScale();
+        scale = SettingsManager.getZoom();
         threshold = SettingsManager.getThreshold();
         colorAlgorithm = SettingsManager.getColorAlgorithm();
         pixelsLeft = (x2 - x1) * (y2 - y1);

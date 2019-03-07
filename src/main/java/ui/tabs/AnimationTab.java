@@ -1,8 +1,8 @@
 package ui.tabs;
 
 import threads.AnimationRenderingThread;
-import ui.timeline.Keyframe;
-import ui.timeline.Timeline;
+import ui.animation.Keyframe;
+import ui.animation.Timeline;
 import misc.SettingsManager;
 
 import javax.swing.*;
@@ -39,9 +39,7 @@ public class AnimationTab extends JPanel {
             timeline.getKeyframes().forEach((kf) -> kf.setEnabled(true));
             timeline.repaint();
         });
-        addButton.addActionListener(e -> {
-            timeline.addKeyframe(new Keyframe(timeline.getLength() + 0.5f, Keyframe.InterpolationType.EASE_IN_OUT));
-        });
+        addButton.addActionListener(e -> timeline.addKeyframe(new Keyframe(timeline.getLength() + 0.5f, Keyframe.InterpolationType.LINEAR)));
 
 
         actionPanel.add(disableButton);

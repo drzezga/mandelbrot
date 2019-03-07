@@ -17,10 +17,11 @@ public class FloatRenderingThread extends RenderingThread {
         float centerR = (float)renderData.center.r.doubleValue();
         float centerI = (float)renderData.center.i.doubleValue();
 
+        double scale = 3 / renderData.zoom;
         float cr = map(renderData.x, 0, renderData.w,
-                (float)(centerR - (renderData.scale / 2f * renderData.screenRatio)), (float)(centerR + renderData.scale / 2f * renderData.screenRatio));
+                (float)(centerR - (scale / 2f * renderData.screenRatio)), (float)(centerR + scale / 2f * renderData.screenRatio));
         float ci = map(renderData.y, 0, renderData.h,
-                (float)(centerI - (renderData.scale / 2f)), (float)(centerI + renderData.scale / 2f));
+                (float)(centerI - (scale / 2f)), (float)(centerI + scale / 2f));
 
         int n = calculateMandelbrot(cr, ci, renderData.threshold);
 

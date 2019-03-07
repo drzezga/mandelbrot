@@ -1,20 +1,23 @@
 package threads;
 
-import org.jcodec.api.awt.AWTSequenceEncoder;
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.model.*;
+import io.humble.video.*;
+//import org.jcodec.api.awt.AWTSequenceEncoder;
+//import org.jcodec.common.io.NIOUtils;
+//import org.jcodec.common.model.*;
+//import org.jcodec.common.model.Rational;
+import io.humble.video.awt.MediaPictureConverter;
+import io.humble.video.awt.MediaPictureConverterFactory;
 import ui.tabs.AnimationTab;
-import ui.timeline.Keyframe;
+import ui.animation.Keyframe;
 import misc.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.BufferOverflowException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
-
-import static jdk.nashorn.internal.objects.Global.Infinity;
 
 public class AnimationRenderingThread extends RenderingManagerThread {
 
@@ -65,48 +68,168 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         frames[frameIndex] = image;
         frameIndex++;
 
-        image = createImage(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_INT_ARGB));
+        image = createImage(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_3BYTE_BGR));
         pixelsLeft = w * h;
     }
 
     private void imagesToVideo() {
-        AWTSequenceEncoder enc;
+//        AWTSequenceEncoder enc;
+//        try {
+//            enc = new AWTSequenceEncoder(NIOUtils.writableFileChannel("output.mp4"), Rational.R(at.getFramerate(), 1));
+////            enc = AWTSequenceEncoder.createSequenceEncoder(new File("output.mp4"), 60);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//
+//        at.setMaxIterations(frameData.length);
+//        for (int i = 0; i < frameData.length; i++) {
+//            try {
+//                if (frames[i] == null) {
+//                    System.err.println("Frame is empty " + i);
+//                    frames[i] = frames[i - 1];
+////                    return;
+//                }
+//                try {
+//                    enc.encodeImage(frames[i]);
+//                } catch (BufferOverflowException e) {
+//                    System.err.println(i + " has caused a BufferOverflowException. Restarting");
+//                    try {
+//                        enc.finish();
+//                    } catch (IOException ee) {
+//                        ee.printStackTrace();
+//                    }
+//                    enc.finish();
+//                    imagesToVideo();
+//                    return;
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            at.setProgress(i);
+//        }
+//        try {
+//            enc.finish();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        final Rational framerate = Rational.make(1, at.getFramerate());
+
+        /** First we create a muxer using the passed in filename and formatname if given. */
+        final Muxer muxer = Muxer.make("output.mp4", null, "mp4");
+
+        /** Now, we need to decide what type of codec to use to encode video. Muxers
+         * have limited sets of codecs they can use. We're going to pick the first one that
+         * works, or if the user supplied a codec name, we're going to force-fit that
+         * in instead.
+         */
+        final MuxerFormat format = muxer.getFormat();
+        final Codec codec;
+        codec = Codec.findEncodingCodec(format.getDefaultVideoCodecId());
+
+        /**
+         * Now that we know what codec, we need to create an encoder
+         */
+        Encoder encoder = Encoder.make(codec);
+
+        /**
+         * Video encoders need to know at a minimum:
+         *   width
+         *   height
+         *   pixel format
+         * Some also need to know frame-rate (older codecs that had a fixed rate at which video files could
+         * be written needed this). There are many other options you can set on an encoder, but we're
+         * going to keep it simpler here.
+         */
+        encoder.setWidth(frames[0].getWidth());
+        encoder.setHeight(frames[0].getHeight());
+        // We are going to use 420P as the format because that's what most video formats these days use
+        final PixelFormat.Type pixelFormat = PixelFormat.Type.PIX_FMT_YUV420P;
+        encoder.setPixelFormat(pixelFormat);
+        encoder.setTimeBase(framerate);
+
+        /** An annoynace of some formats is that they need global (rather than per-stream) headers,
+         * and in that case you have to tell the encoder. And since Encoders are decoupled from
+         * Muxers, there is no easy way to know this beyond
+         */
+        if (format.getFlag(MuxerFormat.Flag.GLOBAL_HEADER))
+            encoder.setFlag(Encoder.Flag.FLAG_GLOBAL_HEADER, true);
+
+        /** Open the encoder. */
+        encoder.open(null, null);
+
+
+        /** Add this stream to the muxer. */
+        muxer.addNewStream(encoder);
+
+        /** And open the muxer for business. */
         try {
-            enc = new AWTSequenceEncoder(NIOUtils.writableFileChannel("output.mp4"), Rational.R(60, 1));
+            muxer.open(null, null);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-            return;
         }
+//        BufferedImage.TYPE_3BYTE_BGR;
+//        BufferedImage.TYPE_INT_ARGB;
+        /** Next, we need to make sure we have the right MediaPicture format objects
+         * to encode data with. Java (and most on-screen graphics programs) use some
+         * variant of Red-Green-Blue image encoding (a.k.a. RGB or BGR). Most video
+         * codecs use some variant of YCrCb formatting. So we're going to have to
+         * convert. To do that, we'll introduce a MediaPictureConverter object later. object.
+         */
+        MediaPictureConverter converter = null;
+        final MediaPicture picture = MediaPicture.make(
+                encoder.getWidth(),
+                encoder.getHeight(),
+                pixelFormat);
+        picture.setTimeBase(framerate);
+
+
+
+        /** Now begin our main loop of taking screen snaps.
+         * We're going to encode and then write out any resulting packets. */
 
         at.setMaxIterations(frameData.length);
-        for (int i = 0; i < frameData.length; i++) {
-            try {
-                if (frames[i] == null) {
-                    System.err.println("Frame is empty " + i);
-                    frames[i] = frames[i - 1];
+
+        final MediaPacket packet = MediaPacket.make();
+        for (int i = 0; i < frames.length; i++) {
+            /** Make the screen capture && convert image to TYPE_3BYTE_BGR */
+            BufferedImage screen = frames[i];
+            if (screen == null) {
+                System.err.println("Frame is empty " + i);
+                screen = frames[i - 1];
 //                    return;
-                }
-                boolean finished = false;
-                while (!finished) {
-                    try {
-                        enc.encodeImage(frames[i]);
-                        finished = true;
-                    } catch (BufferOverflowException e) {
-                        System.err.println(i);
-                        finished = false;
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+            /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
+            if (converter == null)
+                converter = MediaPictureConverterFactory.createConverter(screen, picture);
+            converter.toPicture(picture, screen, i);
+
+            do {
+                encoder.encode(packet, picture);
+                if (packet.isComplete())
+                    muxer.write(packet, false);
+            } while (packet.isComplete());
             at.setProgress(i);
         }
-        try {
-            enc.finish();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
+
+
+        /** Encoders, like decoders, sometimes cache pictures so it can do the right key-frame optimizations.
+         * So, they need to be flushed as well. As with the decoders, the convention is to pass in a null
+         * input until the output is not complete.
+         */
+        do {
+            encoder.encode(packet, null);
+            if (packet.isComplete())
+                muxer.write(packet,  false);
+        } while (packet.isComplete());
+
+        /** Finally, let's clean up after ourselves. */
+        muxer.close();
     }
 
     public PixelRenderData fetchData() {
@@ -120,7 +243,7 @@ public class AnimationRenderingThread extends RenderingManagerThread {
                 System.out.println("Frame index null:" + frameIndex);
                 return null;
             }
-            return new PixelRenderData(x, y, frameData[frameIndex].center, frameData[frameIndex].scale, screenRatio, w, h, frameData[frameIndex].threshold, colorAlgorithm, pixelsLeft == 0);
+            return new PixelRenderData(x, y, frameData[frameIndex].center, frameData[frameIndex].zoom, screenRatio, w, h, frameData[frameIndex].threshold, colorAlgorithm, pixelsLeft == 0);
         } else {
             return new ThreadStallData(0, 0, new Complex(), 0f, 0f, 0, 0, 0, SettingsManager.getColorAlgorithm(), false);
         }
@@ -157,144 +280,151 @@ public class AnimationRenderingThread extends RenderingManagerThread {
             int maxSize = (int) (to.getPosition() - kf.getPosition()) * framerate;
 
             switch (kf.getInterpolationType()) {
-                case STALL:
                 case JUMP:
                     for (int j = 0; j < maxSize; j++) {
                         frameData[Math.round(kf.getPosition() * framerate + j)] = rd;
                     }
                     break;
-                case EASE_IN:
-                case EASE_OUT:
-                case CUBIC_HERMITE:
                 case EASE_IN_OUT:
+                    Complex[] _deltas = new Complex[maxSize];
                     for (int j = 0; j < maxSize; j++) {
                         frameData[Math.round(kf.getPosition() * framerate + j)] = RenderData.serp(rd, to.getRenderData(), j, maxSize);
+                        if (j == 0) {
+                            _deltas[0] =
+                                    frameData[Math.round(kf.getPosition() * framerate + j)].center.subtract(
+                                            kf.getRenderData().center);
+                        } else {
+                            _deltas[j] =
+                                    frameData[Math.round(kf.getPosition() * framerate + j)].center.subtract(
+                                            frameData[Math.round(kf.getPosition() * framerate + j - 1)].center);
+                        }
                     }
+
+                    // Relatively correct scale
+                    double prevZoom = kf.getRenderData().zoom;
+                    double scaleFactor = Math.pow(Math.E, Math.log(to.getRenderData().zoom / kf.getRenderData().zoom) / maxSize);
+                    frameData[Math.round(kf.getPosition() * framerate)].zoom = prevZoom;
+
+                    for (int j = 0; j < maxSize; j++) {
+                        frameData[Math.round(kf.getPosition() * framerate + j)].zoom = prevZoom * scaleFactor;
+                        prevZoom = frameData[Math.round(kf.getPosition() * framerate + j)].zoom;
+                    }
+
+                    // Correct relative speed
+                    BigDecimal _deltaPosR = to.getRenderData().center.r.subtract(kf.getRenderData().center.r);
+                    BigDecimal _deltaPosI = to.getRenderData().center.i.subtract(kf.getRenderData().center.i);
+
+                    BigDecimal _changedSumR = new BigDecimal("0");
+                    BigDecimal _changedSumI = new BigDecimal("0");
+
+                    for (int j = 0; j < maxSize; j++) {
+                        _deltas[j].r = _deltas[j].r.divide(
+                                new BigDecimal(Double.toString(frameData[Math.round(kf.getPosition() * framerate + j)].zoom)),
+                                RoundingMode.HALF_EVEN);
+                        _deltas[j].i = _deltas[j].i.divide(
+                                new BigDecimal(Double.toString(frameData[Math.round(kf.getPosition() * framerate + j)].zoom)),
+                                RoundingMode.HALF_EVEN);
+                        _changedSumR = _changedSumR.add(_deltas[j].r);
+                        _changedSumI = _changedSumI.add(_deltas[j].i);
+                    }
+
+                    BigDecimal _rMoveFactor = _deltaPosR.divide(_changedSumR, RoundingMode.HALF_EVEN);
+                    BigDecimal _iMoveFactor = _deltaPosI.divide(_changedSumI, RoundingMode.HALF_EVEN);
+
+                    for (int j = 0; j < maxSize; j++) {
+                        if (j == 0) {
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.r =
+                                    kf.getRenderData().center.r
+                                            .add(_deltas[j].r.multiply(_rMoveFactor));
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.i =
+                                    kf.getRenderData().center.i
+                                            .add(_deltas[j].i.multiply(_iMoveFactor));
+                        } else {
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.r =
+                                    frameData[Math.round(kf.getPosition() * framerate + j - 1)].center.r
+                                            .add(_deltas[j].r.multiply(_rMoveFactor));
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.i =
+                                    frameData[Math.round(kf.getPosition() * framerate + j - 1)].center.i
+                                            .add(_deltas[j].i.multiply(_iMoveFactor));
+                        }
+                    }
+
                     break;
                 case LINEAR:
+                    Complex[] deltas = new Complex[maxSize];
                     for (int j = 0; j < maxSize; j++) {
                         frameData[Math.round(kf.getPosition() * framerate + j)] = RenderData.lerp(rd, to.getRenderData(), j, maxSize);
+                        if (j == 0) {
+                            deltas[0] =
+                                    frameData[Math.round(kf.getPosition() * framerate + j)].center.subtract(
+                                    kf.getRenderData().center);
+                        } else {
+                            deltas[j] =
+                                    frameData[Math.round(kf.getPosition() * framerate + j)].center.subtract(
+                                    frameData[Math.round(kf.getPosition() * framerate + j - 1)].center);
+                        }
                     }
+
+                    // Relatively correct scale
+                    double previousZoom = kf.getRenderData().zoom;
+                    double scalingFactor = Math.pow(Math.E, Math.log(to.getRenderData().zoom / kf.getRenderData().zoom) / maxSize);
+
+                    for (int j = 0; j < maxSize; j++) {
+                        frameData[Math.round(kf.getPosition() * framerate + j)].zoom = previousZoom * scalingFactor;
+                        previousZoom = frameData[Math.round(kf.getPosition() * framerate + j)].zoom;
+                    }
+
+                    // Relatively correct speed
+                    BigDecimal deltaPosR = to.getRenderData().center.r.subtract(kf.getRenderData().center.r);
+                    BigDecimal deltaPosI = to.getRenderData().center.i.subtract(kf.getRenderData().center.i);
+
+                    BigDecimal changedSumR = new BigDecimal("0");
+                    BigDecimal changedSumI = new BigDecimal("0");
+
+                    for (int j = 0; j < maxSize; j++) {
+//                        frameData[Math.round(kf.getPosition() * framerate + j)].
+                        deltas[j].r = deltas[j].r.divide(
+                                new BigDecimal(Double.toString(frameData[Math.round(kf.getPosition() * framerate + j)].zoom)),
+                                RoundingMode.HALF_EVEN);
+                        deltas[j].i = deltas[j].i.divide(
+                                new BigDecimal(Double.toString(frameData[Math.round(kf.getPosition() * framerate + j)].zoom)),
+                                RoundingMode.HALF_EVEN);
+                        changedSumR = changedSumR.add(deltas[j].r);
+                        changedSumI = changedSumI.add(deltas[j].i);
+                    }
+
+                    BigDecimal rMoveFactor = deltaPosR.divide(changedSumR, RoundingMode.HALF_EVEN);
+                    BigDecimal iMoveFactor = deltaPosI.divide(changedSumI, RoundingMode.HALF_EVEN);
+
+                    for (int j = 0; j < maxSize; j++) {
+                        if (j == 0) {
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.r =
+                                    kf.getRenderData().center.r
+                                            .add(deltas[j].r.multiply(rMoveFactor));
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.i =
+                                    kf.getRenderData().center.i
+                                            .add(deltas[j].i.multiply(iMoveFactor));
+                        } else {
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.r =
+                                    frameData[Math.round(kf.getPosition() * framerate + j - 1)].center.r
+                                            .add(deltas[j].r.multiply(rMoveFactor));
+                            frameData[Math.round(kf.getPosition() * framerate + j)].center.i =
+                                    frameData[Math.round(kf.getPosition() * framerate + j - 1)].center.i
+                                            .add(deltas[j].i.multiply(iMoveFactor));
+                        }
+                    }
+
                     break;
                 case CIRCLE_SPHERE:
                     for (int j = 0; j < maxSize; j++) {
                         frameData[Math.round(kf.getPosition() * framerate + j)] = RenderData.circleSphere(rd, to.getRenderData(), j, maxSize);
                     }
                     break;
-//                case RELATIVE_LINEAR:
-//                    double[] scaleChanges = new double[maxSize];
-//
-//                    double fullScaleChange = to.getRenderData().scale - kf.getRenderData().scale;
-//
-//                    scaleChanges[0] = fullScaleChange / maxSize;
-//                    System.out.println(fullScaleChange);
-//                    double scaleSum = scaleChanges[0];
-//                    // Computing properties, that aren't linear
-//                    // The iteration 0 is purposely skipped, so that it is the original value
-//                    for (int j = 1; j < maxSize; j++) {
-//                        scaleChanges[j] = scaleChanges[j - 1] * 0.899;
-////                        System.out.println(scaleChanges[j]);
-//                        scaleSum += scaleChanges[j];
-//                    }
-////                    if (scaleSum == 0) throw new NumberFormatException("You can't change position from 0 to 0, because that divides by 0");
-//
-//                    computeScalingFactor(fullScaleChange, maxSize);
-//                    double scaleFactor = fullScaleChange / scaleSum;
-//
-//                    // Multiplying properties, that aren't linear, so that they match the transformation length
-//                    for (int j = 0; j < maxSize; j++) {
-//                        scaleChanges[j] *= scaleFactor;
-//                    }
-//
-//                    // Computing properties that are linear and applying those, that aren't
-//                    RenderData prevRenderData = kf.getRenderData();
-//                    for (int j = 0; j < maxSize; j++) {
-//                        // This prevents NaN caused by division by 0
-//                        if (scaleSum == 0) scaleChanges[j] = 0;
-//
-//                        frameData[Math.round(kf.getPosition() * framerate + j)] = RenderData.lerp(rd, to.getRenderData(), j, maxSize);
-//                        frameData[Math.round(kf.getPosition() * framerate + j)].scale = prevRenderData.scale + scaleChanges[j];
-//                        prevRenderData = frameData[Math.round(kf.getPosition() * framerate + j)];
-//                        if (j == 0) {
-//                            System.err.println("dsa");
-//                        }
-////                        System.out.println(scaleChanges[j]);
-//                    }
-
-//                    double[] scales = new double[maxSize];
-//                    double scaleChange = (kfs.get(i + 1).getRenderData().scale - kf.getRenderData().scale) / maxSize;
-//                    double scaleSum = 0;
-//                    RenderData prevFrameData = kf.getRenderData();
-//
-//                    for (int j = 0; j < maxSize; j++) {
-//                        scales[j] = prevFrameData.scale * 0.5;
-//                        frameData[Math.round(kf.getPosition() * framerate + j)] = RenderData.lerp(rd, kfs.get(i + 1).getRenderData(), j, maxSize);
-//                        frameData[Math.round(kf.getPosition() * framerate + j)].scale = prevFrameData.scale + (scaleChange *= 0.5);
-//                        scaleSum += frameData[Math.round(kf.getPosition() * framerate + j)].scale;
-//
-//                        prevFrameData = frameData[j];
-//                    }
-//
-//                    double scaleFactor = (kfs.get(i + 1).getRenderData().scale - kf.getRenderData().scale) / scaleSum;
-//
-//                    // Make the transformation reach the end again
-//                    for (int j = 0; j < maxSize; j++) {
-//                        frameData[Math.round(kf.getPosition() * framerate + j)].scale *= scaleFactor;
-//                    }
-//                    break;
                 default:
                     System.err.println("Interpolation data is null or wrong");
             }
         }
         return frameData;
-        // TODO: No compression
     }
-    private static double computeScalingFactor(double full, int steps) {
-        double step = steps / full;
-        double result = step;
-        double scalingFactor = 1;
-        boolean finished = false;
 
-        while (!finished) {
-            step *= scalingFactor;
-            for (int i = 1; i < steps; i++) {
-                result += step;
-                step *= 0.5;
-            }
-            if (result == full) {
-                finished = true;
-            } else {
-//                if (scalingFactor == 0) {
-//                    throw new NumberFormatException("Scaling factor is 0");
-//                }
-//                if (scalingFactor == Infinity) {
-//                    throw new NumberFormatException("Scaling factor is Infinity");
-//                }
-                scalingFactor = (full / result);
-                step = steps / full;
-                result = step;
-            }
-            System.out.println("Scaling factor effectiveness: " + full / result);
-            System.out.println("Scaling factor is now: " + scalingFactor);
-        }
-        return scalingFactor;
-    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

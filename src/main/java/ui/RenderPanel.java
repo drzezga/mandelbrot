@@ -79,7 +79,7 @@ public class RenderPanel extends JPanel implements MouseListener {
             if (renderingManagerThread.isAlive()) return;
         }
         renderData.threshold = SettingsManager.getThreshold();
-        renderData.scale = SettingsManager.getScale();
+        renderData.zoom = SettingsManager.getZoom();
         renderData.center = SettingsManager.getCenter();
         renderData.zPow = SettingsManager.getZPow();
 
@@ -97,7 +97,7 @@ public class RenderPanel extends JPanel implements MouseListener {
 
     private void shiftRender(Direction dir, int p) {
         renderData.threshold = SettingsManager.getThreshold();
-        renderData.scale = SettingsManager.getScale();
+        renderData.zoom = SettingsManager.getZoom();
         renderData.center = SettingsManager.getCenter();
         System.out.println(renderData.center.r + " " + renderData.center.i);
 
@@ -175,8 +175,9 @@ public class RenderPanel extends JPanel implements MouseListener {
     }
 
     private BigDecimal pixelsToPlaneLength(int p) { // Works
-        BigDecimal y1 = map(0, 0, height, renderData.center.i.subtract(new BigDecimal(renderData.scale / 2f)), renderData.center.i.add(new BigDecimal(renderData.scale / 2f)));
-        BigDecimal y2 = map(p, 0, height, renderData.center.i.subtract(new BigDecimal(renderData.scale / 2f)), renderData.center.i.add(new BigDecimal(renderData.scale / 2f)));
+        double scale = 3 / renderData.zoom;
+        BigDecimal y1 = map(0, 0, height, renderData.center.i.subtract(new BigDecimal(scale / 2f)), renderData.center.i.add(new BigDecimal(scale / 2f)));
+        BigDecimal y2 = map(p, 0, height, renderData.center.i.subtract(new BigDecimal(scale / 2f)), renderData.center.i.add(new BigDecimal(scale / 2f)));
 
         return y1.abs().subtract(y2.abs()).abs();
     }

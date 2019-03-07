@@ -10,17 +10,15 @@ public class Complex {
     public static BigDecimal one = new BigDecimal("1");
 
     public Complex(float _r, float _i) {
-//        try {
-            r = new BigDecimal(Float.toString(_r));
-            i = new BigDecimal(Float.toString(_i));
-//        } catch (java.lang.NumberFormatException e) {
-//            System.err.println(_r + " " + _i);
-//        }
+        r = new BigDecimal(Float.toString(_r));
+        i = new BigDecimal(Float.toString(_i));
     }
+
     public Complex(BigDecimal _r, BigDecimal _i) {
         r = _r;
         i = _i;
     }
+
     public Complex() {}
 
     public Complex(double r, double i) {
@@ -33,6 +31,10 @@ public class Complex {
         tempComplex.i = i.multiply(one);
         tempComplex.r = r.multiply(one);
         return tempComplex;
+    }
+
+    public Complex subtract(Complex otherNum) {
+        return new Complex(this.r.subtract(otherNum.r), this.i.subtract(otherNum.i));
     }
 
     public BigDecimal abs() {

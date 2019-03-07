@@ -40,8 +40,9 @@ public class PerturbationRenderingThread extends Thread {
 //                centerR - (renderData.scale / 2f * renderData.screenRatio), centerR + renderData.scale / 2f * renderData.screenRatio);
 //        c0i = map(renderData.y, 0, renderData.h,
 //                centerI - (renderData.scale / 2f), centerI + renderData.scale / 2f);
-        c0r = renderData.scale * (2 * renderData.x - renderData.w) / renderData.screenRatio;
-        c0i = -renderData.scale * (2 * renderData.y - renderData.h) / window_radius;
+        double scale = 3 / renderData.zoom;
+        c0r = scale * (2 * renderData.x - renderData.w) / renderData.screenRatio;
+        c0i = -scale * (2 * renderData.y - renderData.h) / window_radius;
 //        std::complex<double> d0 (radius * (2 * i - (int) size.x) / window_radius, -radius * (2 * j - (int) size.y) / window_radius);
 //        int n = calculateMandelbrot(c, renderData.threshold);
 

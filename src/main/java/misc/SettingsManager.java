@@ -40,19 +40,19 @@ public class SettingsManager {
         }
     }
 
-    public static double getScale() {
+    public static double getZoom() {
         double val;
         try {
-            val = Double.parseDouble(PositionTab.instance.scaleComboBox.getText());
+            val = Double.parseDouble(PositionTab.instance.zoomComboBox.getText());
         } catch (NumberFormatException e) {
-            val = RenderPanel.instance.renderData.scale;
-            PositionTab.instance.scaleComboBox.setText(Double.toString(val));
+            val = RenderPanel.instance.renderData.zoom;
+            PositionTab.instance.zoomComboBox.setText(Double.toString(val));
         }
         return val;
     }
 
-    public static void setScale(double scale) {
-        PositionTab.instance.scaleComboBox.setText(Double.toString(scale));
+    public static void setZoom(double zoom) {
+        PositionTab.instance.zoomComboBox.setText(Double.toString(zoom));
     }
 
     public static Complex getCenter() {
@@ -105,7 +105,7 @@ public class SettingsManager {
 
     public static void setRenderData(RenderData rd) {
         setCenter(rd.center);
-        setScale(rd.scale);
+        setZoom(rd.zoom);
         setThreshold(rd.threshold);
         // TODO: Set zPow
     }
