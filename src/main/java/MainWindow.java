@@ -24,7 +24,7 @@ public class MainWindow extends JFrame {
 
     public MainWindow() {
         super("Mandelbrot");
-        setSize(800, 1000);
+        setSize(1280, 720);
         setMinimumSize(new Dimension(800, 600));
         setResizable(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

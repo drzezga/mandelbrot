@@ -15,11 +15,17 @@ public class SmoothColorAlgorithm extends ColorAlgorithm {
         if (n == threshold) {
             return new Color(0);
         }
-        double nu = n + 1 - (Math.log(Math.log(z.abs().doubleValue())) / Math.log(2));
+        // nu = n + 1 - Math.log(Math.log(zn.abs()))/Math.log(2)
+        double nu = n - (Math.log(Math.log(z.abs().doubleValue() + 1)) / Math.log(2));
 //        double nu = n - Math.log(Math.log(n));
         int index = (int) nu % palette.colors.length;
 //        return Color.getHSBColor(0.95f + 10 * (float) nu,0.6f,1.0f);
 
+
+
+//        double nu = n - (Math.log(Math.log(z.abs().doubleValue())) / Math.log(2));
+//        int index = (int) nu % palette.colors.length;
         return palette.get(index);
+
     }
 }
