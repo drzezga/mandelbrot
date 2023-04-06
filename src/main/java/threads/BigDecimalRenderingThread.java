@@ -26,7 +26,7 @@ public class BigDecimalRenderingThread extends RenderingThread {
 
         int n = calculateMandelbrot(c, renderData.threshold);
 
-        Color color = renderData.colorAlgorithm.calculate(n, new Complex(), renderData.threshold);
+        Color color = renderData.colorAlgorithm.calculate(n, new Complex(), renderData.threshold, new Complex());
         parent.setPixel(renderData.x, renderData.y, color);
     }
 

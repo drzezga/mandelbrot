@@ -27,6 +27,13 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 
     private BufferedImage[] frames;
 
+    Encoder encoder;
+    MediaPacket packet;
+    MediaPictureConverter converter;
+    MediaPicture picture;
+    Muxer muxer;
+    int imageIndex = 0;
+
     public AnimationRenderingThread(ThreadType threadType, AnimationTab at) {
         super(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_3BYTE_BGR), threadType, 0, 0, SettingsManager.getResolutionX(), SettingsManager.getResolutionY());
 
@@ -72,52 +79,13 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         pixelsLeft = w * h;
     }
 
-    private void imagesToVideo() {
-//        AWTSequenceEncoder enc;
-//        try {
-//            enc = new AWTSequenceEncoder(NIOUtils.writableFileChannel("output.mp4"), Rational.R(at.getFramerate(), 1));
-////            enc = AWTSequenceEncoder.createSequenceEncoder(new File("output.mp4"), 60);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return;
-//        }
-//
-//        at.setMaxIterations(frameData.length);
-//        for (int i = 0; i < frameData.length; i++) {
-//            try {
-//                if (frames[i] == null) {
-//                    System.err.println("Frame is empty " + i);
-//                    frames[i] = frames[i - 1];
-////                    return;
-//                }
-//                try {
-//                    enc.encodeImage(frames[i]);
-//                } catch (BufferOverflowException e) {
-//                    System.err.println(i + " has caused a BufferOverflowException. Restarting");
-//                    try {
-//                        enc.finish();
-//                    } catch (IOException ee) {
-//                        ee.printStackTrace();
-//                    }
-//                    enc.finish();
-//                    imagesToVideo();
-//                    return;
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            at.setProgress(i);
-//        }
-//        try {
-//            enc.finish();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    // Example from https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src/main/java/io/humble/video/demos/RecordAndEncodeVideo.java
 
+    private void beginVideo() {
         final Rational framerate = Rational.make(1, at.getFramerate());
 
         /** First we create a muxer using the passed in filename and formatname if given. */
-        final Muxer muxer = Muxer.make("output.mp4", null, "mp4");
+        muxer = Muxer.make("output.mp4", null, "mp4");
 
         /** Now, we need to decide what type of codec to use to encode video. Muxers
          * have limited sets of codecs they can use. We're going to pick the first one that
@@ -131,7 +99,7 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         /**
          * Now that we know what codec, we need to create an encoder
          */
-        Encoder encoder = Encoder.make(codec);
+        encoder = Encoder.make(codec);
 
         /**
          * Video encoders need to know at a minimum:
@@ -179,13 +147,12 @@ public class AnimationRenderingThread extends RenderingManagerThread {
          * codecs use some variant of YCrCb formatting. So we're going to have to
          * convert. To do that, we'll introduce a MediaPictureConverter object later. object.
          */
-        MediaPictureConverter converter = null;
-        final MediaPicture picture = MediaPicture.make(
+        converter = null;
+        picture = MediaPicture.make(
                 encoder.getWidth(),
                 encoder.getHeight(),
                 pixelFormat);
         picture.setTimeBase(framerate);
-
 
 
         /** Now begin our main loop of taking screen snaps.
@@ -193,31 +160,32 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 
         at.setMaxIterations(frameData.length);
 
-        final MediaPacket packet = MediaPacket.make();
-        for (int i = 0; i < frames.length; i++) {
-            /** Make the screen capture && convert image to TYPE_3BYTE_BGR */
-            BufferedImage screen = frames[i];
-            if (screen == null) {
-                System.err.println("Frame is empty " + i);
-                screen = frames[i - 1];
-//                    return;
-            }
+        packet = MediaPacket.make();
+    }
 
-            /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
-            if (converter == null)
-                converter = MediaPictureConverterFactory.createConverter(screen, picture);
-            converter.toPicture(picture, screen, i);
-
-            do {
-                encoder.encode(packet, picture);
-                if (packet.isComplete())
-                    muxer.write(packet, false);
-            } while (packet.isComplete());
-            at.setProgress(i);
+    private void saveImageToVideo() {
+        /** Make the screen capture && convert image to TYPE_3BYTE_BGR */
+        BufferedImage screen = frames[imageIndex];
+        if (screen == null) {
+            System.err.println("Frame is empty " + imageIndex);
+            screen = frames[imageIndex - 1];
         }
 
+        /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
+        if (converter == null)
+            converter = MediaPictureConverterFactory.createConverter(screen, picture);
+        converter.toPicture(picture, screen, imageIndex);
 
+        do {
+            encoder.encode(packet, picture);
+            if (packet.isComplete())
+                muxer.write(packet, false);
+        } while (packet.isComplete());
+//        at.setProgress(imageIndex);
+        imageIndex++;
+    }
 
+    private void endVideo() {
         /** Encoders, like decoders, sometimes cache pictures so it can do the right key-frame optimizations.
          * So, they need to be flushed as well. As with the decoders, the convention is to pass in a null
          * input until the output is not complete.
@@ -230,6 +198,76 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 
         /** Finally, let's clean up after ourselves. */
         muxer.close();
+    }
+
+    private void imagesToVideo() {
+//        AWTSequenceEncoder enc;
+//        try {
+//            enc = new AWTSequenceEncoder(NIOUtils.writableFileChannel("output.mp4"), Rational.R(at.getFramerate(), 1));
+////            enc = AWTSequenceEncoder.createSequenceEncoder(new File("output.mp4"), 60);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//
+//        at.setMaxIterations(frameData.length);
+//        for (int i = 0; i < frameData.length; i++) {
+//            try {
+//                if (frames[i] == null) {
+//                    System.err.println("Frame is empty " + i);
+//                    frames[i] = frames[i - 1];
+////                    return;
+//                }
+//                try {
+//                    enc.encodeImage(frames[i]);
+//                } catch (BufferOverflowException e) {
+//                    System.err.println(i + " has caused a BufferOverflowException. Restarting");
+//                    try {
+//                        enc.finish();
+//                    } catch (IOException ee) {
+//                        ee.printStackTrace();
+//                    }
+//                    enc.finish();
+//                    imagesToVideo();
+//                    return;
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            at.setProgress(i);
+//        }
+//        try {
+//            enc.finish();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+
+        beginVideo();
+
+        for (int i = 0; i < frames.length; i++) {
+            saveImageToVideo();
+//            /** Make the screen capture && convert image to TYPE_3BYTE_BGR */
+//            BufferedImage screen = frames[i];
+//            if (screen == null) {
+//                System.err.println("Frame is empty " + i);
+//                screen = frames[i - 1];
+//            }
+//
+//            /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
+//            if (converter == null)
+//                converter = MediaPictureConverterFactory.createConverter(screen, picture);
+//            converter.toPicture(picture, screen, i);
+//
+//            do {
+//                encoder.encode(packet, picture);
+//                if (packet.isComplete())
+//                    muxer.write(packet, false);
+//            } while (packet.isComplete());
+//            at.setProgress(i);
+        }
+
+        endVideo();
     }
 
     public PixelRenderData fetchData() {
@@ -393,8 +431,12 @@ public class AnimationRenderingThread extends RenderingManagerThread {
                         changedSumI = changedSumI.add(deltas[j].i);
                     }
 
-                    BigDecimal rMoveFactor = deltaPosR.divide(changedSumR, RoundingMode.HALF_EVEN);
-                    BigDecimal iMoveFactor = deltaPosI.divide(changedSumI, RoundingMode.HALF_EVEN);
+                    BigDecimal rMoveFactor = deltaPosR.compareTo(BigDecimal.ZERO) == 0
+                            ? BigDecimal.ONE
+                            : deltaPosR.divide(changedSumR, RoundingMode.HALF_EVEN);
+                    BigDecimal iMoveFactor = deltaPosI.compareTo(BigDecimal.ZERO) == 0
+                            ? BigDecimal.ONE
+                            : deltaPosI.divide(changedSumI, RoundingMode.HALF_EVEN);
 
                     for (int j = 0; j < maxSize; j++) {
                         if (j == 0) {

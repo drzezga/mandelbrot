@@ -1,11 +1,10 @@
 package threads;
 
 import misc.Complex;
+import misc.MandelbrotCalculationResult;
 import misc.PixelRenderData;
 
 import java.awt.*;
-
-import static java.lang.Float.NaN;
 
 public class FloatRenderingThread extends RenderingThread {
 
@@ -23,15 +22,15 @@ public class FloatRenderingThread extends RenderingThread {
         float ci = map(renderData.y, 0, renderData.h,
                 (float)(centerI - (scale / 2f)), (float)(centerI + scale / 2f));
 
-        int n = calculateMandelbrot(cr, ci, renderData.threshold);
+        MandelbrotCalculationResult res = calculateMandelbrot(cr, ci, renderData.threshold);
 
-        Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold);
+        Color color = renderData.colorAlgorithm.calculate(res.iterations, new Complex(cr, ci), renderData.threshold, res.zn);
 
         parent.setPixel(renderData.x, renderData.y, color);
 
     }
 
-    public static int calculateMandelbrot(float cr, float ci, int threshold) {
+    public static MandelbrotCalculationResult calculateMandelbrot(float cr, float ci, int threshold) {
         float zr = 0;
         float zi = 0;
 
@@ -49,14 +48,12 @@ public class FloatRenderingThread extends RenderingThread {
             }
             n++;
         }
-        return n;
+        return new MandelbrotCalculationResult(n, new Complex(zr, zi));
     }
 
-    static public final float map(float value,
-                                  float start1, float stop1,
-                                  float start2, float stop2) {
-        float outgoing =
-                start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
-        return outgoing;
+    static public float map(float value,
+                            float start1, float stop1,
+                            float start2, float stop2) {
+        return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
     }
 }

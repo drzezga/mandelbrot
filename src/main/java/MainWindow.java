@@ -4,6 +4,7 @@ import ui.RenderPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class MainWindow extends JFrame {
 
@@ -18,7 +19,7 @@ public class MainWindow extends JFrame {
             // Set System L&F
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
-        catch (UnsupportedLookAndFeelException | InstantiationException | ClassNotFoundException | IllegalAccessException e) {}
+        catch (UnsupportedLookAndFeelException | InstantiationException | ClassNotFoundException | IllegalAccessException ignored) {}
         instance = new MainWindow();
     }
 
@@ -33,7 +34,22 @@ public class MainWindow extends JFrame {
         p.setLayout(new BorderLayout());
         p.add(viewport, BorderLayout.CENTER);
         p.add(tabPanel, BorderLayout.PAGE_END);
-        tabPanel.addKeyListener(new KeyHandler());
+
+        KeyHandler handler = new KeyHandler();
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                        .addKeyEventDispatcher(new KeyEventDispatcher() {
+                            @Override
+                            public boolean dispatchKeyEvent(KeyEvent e) {
+                                if (e.getID() == KeyEvent.KEY_RELEASED) {
+                                    handler.keyReleased(e);
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        });
+
         add(p);
 
         pack();

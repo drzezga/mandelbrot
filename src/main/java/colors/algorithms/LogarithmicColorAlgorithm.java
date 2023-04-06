@@ -11,7 +11,7 @@ public class LogarithmicColorAlgorithm extends ColorAlgorithm {
     }
 
     @Override
-    public Color calculate(float n, Complex z, int threshold) {
+    public Color calculate(float n, Complex z, int threshold, Complex zn) {
         if (n == threshold) {
             return new Color(0);
         }

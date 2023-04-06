@@ -11,11 +11,11 @@ public class SmoothColorAlgorithm extends ColorAlgorithm {
     }
 
     @Override
-    public Color calculate(float n, Complex z, int threshold) {
+    public Color calculate(float n, Complex z, int threshold, Complex zn) {
         if (n == threshold) {
             return new Color(0);
         }
-        double nu = n + 1 - (Math.log(Math.log(z.abs().doubleValue())) / Math.log(2));
+        double nu = n + 1 - (Math.log(Math.log(zn.abs().doubleValue())) / Math.log(2));
 //        double nu = n - Math.log(Math.log(n));
         int index = (int) nu % palette.colors.length;
 //        return Color.getHSBColor(0.95f + 10 * (float) nu,0.6f,1.0f);

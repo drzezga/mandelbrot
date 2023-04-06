@@ -41,7 +41,6 @@ public class AnimationTab extends JPanel {
         });
         addButton.addActionListener(e -> timeline.addKeyframe(new Keyframe(timeline.getLength() + 0.5f, Keyframe.InterpolationType.LINEAR)));
 
-
         actionPanel.add(disableButton);
         actionPanel.add(enableButton);
         actionPanel.add(addButton);

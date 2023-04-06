@@ -12,6 +12,6 @@ public class PaletteRenderingThread extends RenderingThread {
     @Override
     void calculate(PixelRenderData renderData) {
 //        System.out.println(renderData.x);
-        parent.setPixel(renderData.x, renderData.y, renderData.colorAlgorithm.calculate((float)renderData.x, new Complex(), renderData.w));
+        parent.setPixel(renderData.x, renderData.y, renderData.colorAlgorithm.calculate((float)renderData.x, new Complex(), renderData.w, new Complex()));
     }
 }

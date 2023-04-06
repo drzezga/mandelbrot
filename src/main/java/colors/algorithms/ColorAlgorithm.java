@@ -14,5 +14,5 @@ public abstract class ColorAlgorithm {
         palette = _palette;
     }
 
-    public abstract Color calculate(float n, Complex z, int threshold);
+    public abstract Color calculate(float n, Complex z, int threshold, Complex zn);
 }

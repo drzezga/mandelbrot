@@ -23,7 +23,7 @@ public class JuliaSetRenderingThread extends RenderingThread {
         int n = calculateJulia(cr, ci, renderData.threshold, centerR, centerI);
 
 
-        Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold);
+        Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold, new Complex(cr, ci));
 
         parent.setPixel(renderData.x, renderData.y, color);
     }
@@ -49,12 +49,10 @@ public class JuliaSetRenderingThread extends RenderingThread {
         return n;
     }
 
-    static public final double map(double value,
-                                   double start1, double stop1,
-                                   double start2, double stop2) {
-        double outgoing =
-                start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
-        return outgoing;
+    static public double map(double value,
+                             double start1, double stop1,
+                             double start2, double stop2) {
+        return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1));
     }
 
     public boolean isShiftRenderingEnabled() {

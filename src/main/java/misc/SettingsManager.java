@@ -11,7 +11,7 @@ import ui.components.PaletteSelectComboBox;
 import ui.components.ResolutionTextField;
 import ui.tabs.PositionTab;
 import ui.tabs.SettingsTab;
-import ui.tabs.VariablesTab;
+import ui.tabs.DisplayTab;
 
 import java.math.BigDecimal;
 
@@ -33,11 +33,19 @@ public class SettingsManager {
     }
 
     public static int getThreshold() {
-        if (VariablesTab.instance.threshold.getValue().getClass() == java.lang.Long.class) {
-            return ((Long)VariablesTab.instance.threshold.getValue()).intValue();
-        } else {
-            return (int)VariablesTab.instance.threshold.getValue();
+        int val;
+        try {
+            val = Integer.parseInt(PositionTab.instance.threshold.getText());
+        } catch (NumberFormatException e) {
+            val = RenderPanel.instance.renderData.threshold;
+            PositionTab.instance.threshold.setText(Double.toString(val));
         }
+        return val;
+//        if (PositionTab.instance.threshold.getValue().getClass() == java.lang.Long.class) {
+//            return ((Long) PositionTab.instance.threshold.getValue()).intValue();
+//        } else {
+//            return (int) PositionTab.instance.threshold.getValue();
+//        }
     }
 
     public static double getZoom() {
@@ -83,7 +91,7 @@ public class SettingsManager {
     }
 
     public static ThreadType getRenderingEngine() {
-        return SettingsTab.instance.renderingEngineSelectComboBox.threadHashMap.get(SettingsTab.instance.renderingEngineSelectComboBox.comboBox.getSelectedItem());
+        return DisplayTab.instance.renderingEngineSelectComboBox.threadHashMap.get(DisplayTab.instance.renderingEngineSelectComboBox.comboBox.getSelectedItem());
     }
 
     public static ColorAlgorithm getColorAlgorithm() {
@@ -100,7 +108,7 @@ public class SettingsManager {
     }
 
     public static void setThreshold(int threshold) {
-        VariablesTab.instance.threshold.setValue(threshold);
+        PositionTab.instance.threshold.setText(Integer.toString(threshold));
     }
 
     public static void setRenderData(RenderData rd) {
@@ -111,10 +119,10 @@ public class SettingsManager {
     }
 
     public static boolean isCrosshairEnabled() {
-        return SettingsTab.instance.crosshairCheckBox.isSelected();
+        return DisplayTab.instance.crosshairCheckBox.isSelected();
     }
 
     public static SupersampleType getSupersampleType() {
-        return (SupersampleType) SettingsTab.instance.supersampleType.getSelectedItem();
+        return (SupersampleType) DisplayTab.instance.supersampleType.getSelectedItem();
     }
 }

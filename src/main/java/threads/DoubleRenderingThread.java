@@ -1,6 +1,7 @@
 package threads;
 
 import misc.Complex;
+import misc.MandelbrotCalculationResult;
 import misc.PixelRenderData;
 
 import java.awt.*;
@@ -21,15 +22,15 @@ public class DoubleRenderingThread extends RenderingThread {
         double ci = map(renderData.y, 0, renderData.h,
                 centerI - (scale / 2f), centerI + scale / 2f);
 
-        int n = calculateMandelbrot(cr, ci, renderData.threshold);
+        MandelbrotCalculationResult res = calculateMandelbrot(cr, ci, renderData.threshold);
 
 
-        Color color = renderData.colorAlgorithm.calculate(n, new Complex(cr, ci), renderData.threshold);
+        Color color = renderData.colorAlgorithm.calculate(res.iterations, new Complex(cr, ci), renderData.threshold, res.zn);
 
         parent.setPixel(renderData.x, renderData.y, color);
     }
 
-    public static int calculateMandelbrot(double cr, double ci, int threshold) {
+    public static MandelbrotCalculationResult calculateMandelbrot(double cr, double ci, int threshold) {
         double zr = 0;
         double zi = 0;
 
@@ -47,7 +48,7 @@ public class DoubleRenderingThread extends RenderingThread {
             }
             n++;
         }
-        return n;
+        return new MandelbrotCalculationResult(n, new Complex(zr, zi));
     }
 
     static public final double map(double value,

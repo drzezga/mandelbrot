@@ -29,8 +29,6 @@ public class PerturbationRenderingThread extends Thread {
     private double c0i;
 
     public void calculate(PixelRenderData renderData) {
-//
-
         int window_radius = (renderData.w < renderData.h) ? renderData.w : renderData.h;
 
         // find the complex number at the center of this pixel
@@ -73,7 +71,7 @@ public class PerturbationRenderingThread extends Thread {
             // use bailout radius of 256 for smooth coloring.
         } while (zn_size < 256 && iter < max_iter);
 
-        Color color = renderData.colorAlgorithm.calculate((int)zn_size, new Complex(), renderData.threshold);
+        Color color = renderData.colorAlgorithm.calculate((int)zn_size, new Complex(c0r, c0i), renderData.threshold, new Complex(cnr, cni));
         parent.setPixel(renderData.x, renderData.y, color);
     }
 

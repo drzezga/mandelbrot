@@ -3,7 +3,7 @@ package ui;
 import ui.tabs.PositionTab;
 import ui.tabs.RenderingTab;
 import ui.tabs.SettingsTab;
-import ui.tabs.VariablesTab;
+import ui.tabs.DisplayTab;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -54,12 +54,12 @@ public class KeyHandler implements KeyListener {
                     break;
                 case 90: // z - threshold -= 50
                     if (renderPanel.renderData.threshold > 50)
-                        VariablesTab.instance.threshold.setValue( renderPanel.renderData.threshold - 50);
+                        PositionTab.instance.threshold.setText(Integer.toString(renderPanel.renderData.threshold - 50));
                     System.out.println(renderPanel.renderData.threshold);
                     renderPanel.render();
                     break;
                 case 88: // x - threshold += 50
-                    VariablesTab.instance.threshold.setValue( renderPanel.renderData.threshold + 50);
+                    PositionTab.instance.threshold.setText(Integer.toString(renderPanel.renderData.threshold + 50));
                     System.out.println(renderPanel.renderData.threshold);
                     renderPanel.render();
                     break;
@@ -67,10 +67,10 @@ public class KeyHandler implements KeyListener {
                     renderPanel.render();
                     break;
                 case 89: // y - toggle julia/double
-                    if (SettingsTab.instance.renderingEngineSelectComboBox.comboBox.getSelectedItem() == "Julia Set") {
-                        SettingsTab.instance.renderingEngineSelectComboBox.comboBox.setSelectedItem("Double");
+                    if (DisplayTab.instance.renderingEngineSelectComboBox.comboBox.getSelectedItem() == "Julia Set") {
+                        DisplayTab.instance.renderingEngineSelectComboBox.comboBox.setSelectedItem("Double");
                     } else {
-                        SettingsTab.instance.renderingEngineSelectComboBox.comboBox.setSelectedItem("Julia Set");
+                        DisplayTab.instance.renderingEngineSelectComboBox.comboBox.setSelectedItem("Julia Set");
                     }
                     renderPanel.render();
                     break;
