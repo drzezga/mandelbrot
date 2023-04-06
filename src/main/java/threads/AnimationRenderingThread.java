@@ -36,7 +36,7 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 
     @Override
     public void run() {
-        superRun();
+        threadRun();
         startTime = System.nanoTime();
         at.setTime(0);
         at.setMaxIterations(Math.abs(frameData.length));
@@ -133,18 +133,21 @@ public class AnimationRenderingThread extends RenderingManagerThread {
          */
         Encoder encoder = Encoder.make(codec);
 
-        encoder.setProperty("preset", "slower"); // https://trac.ffmpeg.org/wiki/Encode/H.264
-        encoder.setProperty("crf", "18");
-//        encoder.setProperty("preset", "veryslow"); // ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow
-//        encoder.setProperty("crf", "15"); // 0 - 51
-
+        /**
+         * Video encoders need to know at a minimum:
+         *   width
+         *   height
+         *   pixel format
+         * Some also need to know frame-rate (older codecs that had a fixed rate at which video files could
+         * be written needed this). There are many other options you can set on an encoder, but we're
+         * going to keep it simpler here.
+         */
         encoder.setWidth(frames[0].getWidth());
         encoder.setHeight(frames[0].getHeight());
         // We are going to use 420P as the format because that's what most video formats these days use
         final PixelFormat.Type pixelFormat = PixelFormat.Type.PIX_FMT_YUV420P;
         encoder.setPixelFormat(pixelFormat);
         encoder.setTimeBase(framerate);
-
 
         /** An annoynace of some formats is that they need global (rather than per-stream) headers,
          * and in that case you have to tell the encoder. And since Encoders are decoupled from
@@ -325,18 +328,8 @@ public class AnimationRenderingThread extends RenderingManagerThread {
                         _changedSumI = _changedSumI.add(_deltas[j].i);
                     }
 
-                    BigDecimal _rMoveFactor;
-                    BigDecimal _iMoveFactor;
-                    if (_changedSumR.stripTrailingZeros().equals(BigDecimal.ZERO)) {
-                        _rMoveFactor = BigDecimal.ONE;
-                    } else {
-                        _rMoveFactor = _deltaPosR.divide(_changedSumR, RoundingMode.HALF_EVEN);
-                    }
-                    if (_changedSumI.stripTrailingZeros().equals(BigDecimal.ZERO)) {
-                        _iMoveFactor = BigDecimal.ONE;
-                    } else {
-                        _iMoveFactor = _deltaPosI.divide(_changedSumI, RoundingMode.HALF_EVEN);
-                    }
+                    BigDecimal _rMoveFactor = _deltaPosR.divide(_changedSumR, RoundingMode.HALF_EVEN);
+                    BigDecimal _iMoveFactor = _deltaPosI.divide(_changedSumI, RoundingMode.HALF_EVEN);
 
                     for (int j = 0; j < maxSize; j++) {
                         if (j == 0) {
@@ -400,21 +393,8 @@ public class AnimationRenderingThread extends RenderingManagerThread {
                         changedSumI = changedSumI.add(deltas[j].i);
                     }
 
-                    BigDecimal rMoveFactor;
-                    BigDecimal iMoveFactor;
-                    System.out.println(changedSumR);
-                    System.out.println(BigDecimal.ZERO);
-                    if (changedSumR.stripTrailingZeros().equals(BigDecimal.ZERO)) {
-                        rMoveFactor = BigDecimal.ONE;
-                    } else {
-                        rMoveFactor = deltaPosR.divide(changedSumR, RoundingMode.HALF_EVEN);
-                    }
-                    System.out.println(changedSumI);
-                    if (changedSumI.stripTrailingZeros().equals(BigDecimal.ZERO)) {
-                        iMoveFactor = BigDecimal.ONE;
-                    } else {
-                        iMoveFactor = deltaPosI.divide(changedSumI, RoundingMode.HALF_EVEN);
-                    }
+                    BigDecimal rMoveFactor = deltaPosR.divide(changedSumR, RoundingMode.HALF_EVEN);
+                    BigDecimal iMoveFactor = deltaPosI.divide(changedSumI, RoundingMode.HALF_EVEN);
 
                     for (int j = 0; j < maxSize; j++) {
                         if (j == 0) {
@@ -446,4 +426,5 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         }
         return frameData;
     }
+
 }

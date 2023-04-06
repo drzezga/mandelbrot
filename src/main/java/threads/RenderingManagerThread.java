@@ -57,7 +57,7 @@ public class RenderingManagerThread extends Thread {
 
     @Override
     public void run() {
-        superRun();
+        threadRun();
         RenderingTab renderingTab = RenderingTab.instance;
         startTime = System.nanoTime();
         renderingTab.setTime(0);
@@ -81,7 +81,7 @@ public class RenderingManagerThread extends Thread {
         RenderPanel.instance.repaint();
     }
 
-    protected void superRun() {
+    protected void threadRun() {
         super.run();
     }
 
