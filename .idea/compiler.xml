@@ -9,8 +9,5 @@
         <module name="mandelbrot" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="mandelbrot" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
