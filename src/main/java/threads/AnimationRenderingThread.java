@@ -25,7 +25,9 @@ public class AnimationRenderingThread extends RenderingManagerThread {
     private AnimationTab at;
     private int frameIndex = 0;
 
-    private BufferedImage[] frames;
+//    private BufferedImage[] frames;
+//    private BufferedImage frame;
+    private BufferedImage lastFrame;
 
     Encoder encoder;
     MediaPacket packet;
@@ -47,7 +49,9 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         startTime = System.nanoTime();
         at.setTime(0);
         at.setMaxIterations(Math.abs(frameData.length));
-        frames = new BufferedImage[frameData.length];
+//        frames = new BufferedImage[frameData.length];
+
+        beginVideo();
 
         startThreads();
 
@@ -58,7 +62,9 @@ public class AnimationRenderingThread extends RenderingManagerThread {
             } catch (InterruptedException ignored) {}
         }
 
-        imagesToVideo();
+//        imagesToVideo();
+
+        endVideo();
 
         at.setTime((float)(System.nanoTime() - startTime) / 1000000000);
         System.out.println("Animation rendering finished");
@@ -70,12 +76,18 @@ public class AnimationRenderingThread extends RenderingManagerThread {
     }
 
     public void nextFrame() {
+        System.out.println("Next frame " + frameIndex);
+//        lastFrame = frame;
         if (frameIndex == frameData.length) return;
-        image = postProcess(image);
-        frames[frameIndex] = image;
+        BufferedImage frame = postProcess(image);
+//        frames[frameIndex] = image;
+//        frame = image;
+        saveImageToVideo(frame);
+
         frameIndex++;
 
-        image = createImage(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_3BYTE_BGR));
+        lastFrame = frame;
+        frame = createImage(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_3BYTE_BGR));
         pixelsLeft = w * h;
     }
 
@@ -110,8 +122,8 @@ public class AnimationRenderingThread extends RenderingManagerThread {
          * be written needed this). There are many other options you can set on an encoder, but we're
          * going to keep it simpler here.
          */
-        encoder.setWidth(frames[0].getWidth());
-        encoder.setHeight(frames[0].getHeight());
+        encoder.setWidth(w);
+        encoder.setHeight(h);
         // We are going to use 420P as the format because that's what most video formats these days use
         final PixelFormat.Type pixelFormat = PixelFormat.Type.PIX_FMT_YUV420P;
         encoder.setPixelFormat(pixelFormat);
@@ -163,12 +175,12 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         packet = MediaPacket.make();
     }
 
-    private void saveImageToVideo() {
+    public void saveImageToVideo(BufferedImage screen) {
         /** Make the screen capture && convert image to TYPE_3BYTE_BGR */
-        BufferedImage screen = frames[imageIndex];
+//         = frame;
         if (screen == null) {
             System.err.println("Frame is empty " + imageIndex);
-            screen = frames[imageIndex - 1];
+            screen = lastFrame;
         }
 
         /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
@@ -245,8 +257,8 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 
         beginVideo();
 
-        for (int i = 0; i < frames.length; i++) {
-            saveImageToVideo();
+        for (int i = 0; i < frameData.length; i++) {
+            saveImageToVideo(image);
 //            /** Make the screen capture && convert image to TYPE_3BYTE_BGR */
 //            BufferedImage screen = frames[i];
 //            if (screen == null) {
