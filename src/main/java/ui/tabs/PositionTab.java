@@ -23,9 +23,12 @@ public class PositionTab extends JPanel {
         JPanel middlePanel = new JPanel();
         JPanel bottomPanel = new JPanel();
 
+        JPanel zoomPanel = new JPanel();
+
         topPanel.setLayout(new BorderLayout());
         middlePanel.setLayout(new BorderLayout());
         bottomPanel.setLayout(new BorderLayout());
+        zoomPanel.setLayout(new BorderLayout());
 
         // Labels
         JLabel realLabel = new JLabel("Real", SwingConstants.CENTER);
@@ -38,7 +41,7 @@ public class PositionTab extends JPanel {
 
         topPanel.add(realLabel, BorderLayout.LINE_START);
         middlePanel.add(imaginaryLabel, BorderLayout.LINE_START);
-        bottomPanel.add(zoomLabel, BorderLayout.LINE_START);
+        zoomPanel.add(zoomLabel, BorderLayout.LINE_START);
 
         // Input boxes
         positionRealComboBox = new JTextField("-0.75");
@@ -56,12 +59,9 @@ public class PositionTab extends JPanel {
 
         topPanel.add(resetRealButton, BorderLayout.LINE_END);
         middlePanel.add(resetImButton, BorderLayout.LINE_END);
-        bottomPanel.add(resetScaleButton, BorderLayout.LINE_END);
+        zoomPanel.add(resetScaleButton, BorderLayout.LINE_END);
 
-        // All panels
-        add(topPanel, BorderLayout.PAGE_START);
-        add(middlePanel, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.PAGE_END);
+        bottomPanel.add(zoomPanel, BorderLayout.LINE_START);
 
         // Event listeners
         resetRealButton.addActionListener(e -> {
@@ -79,10 +79,19 @@ public class PositionTab extends JPanel {
             RenderPanel.instance.render();
         });
 
+        JPanel thresholdPanel = new JPanel();
+        thresholdPanel.setLayout(new BorderLayout());
+
         threshold.setPreferredSize(new Dimension(60, 21));
 
-        bottomPanel.add(new JLabel("Threshold"));
-        bottomPanel.add(threshold);
+        thresholdPanel.add(new JLabel("Threshold"), BorderLayout.CENTER);
+        thresholdPanel.add(threshold, BorderLayout.LINE_END);
 
+        bottomPanel.add(thresholdPanel, BorderLayout.LINE_END);
+
+        // All panels
+        add(topPanel, BorderLayout.PAGE_START);
+        add(middlePanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.PAGE_END);
     }
 }
