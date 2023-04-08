@@ -1,5 +1,6 @@
 package threads;
 
+import ffmpeg.BufferedImageWriter;
 import io.humble.video.*;
 //import org.jcodec.api.awt.AWTSequenceEncoder;
 //import org.jcodec.common.io.NIOUtils;
@@ -19,6 +20,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 
+import static io.humble.video.awt.MediaPictureConverterFactory.convertToType;
+
 public class AnimationRenderingThread extends RenderingManagerThread {
 
     private RenderData[] frameData;
@@ -29,11 +32,13 @@ public class AnimationRenderingThread extends RenderingManagerThread {
 //    private BufferedImage frame;
     private BufferedImage lastFrame;
 
-    Encoder encoder;
-    MediaPacket packet;
-    MediaPictureConverter converter;
-    MediaPicture picture;
-    Muxer muxer;
+    BufferedImageWriter writer;
+
+//    Encoder encoder;
+//    MediaPacket packet;
+//    MediaPictureConverter converter;
+//    MediaPicture picture;
+//    Muxer muxer;
     int imageIndex = 0;
 
     public AnimationRenderingThread(ThreadType threadType, AnimationTab at) {
@@ -87,31 +92,32 @@ public class AnimationRenderingThread extends RenderingManagerThread {
         frameIndex++;
 
         lastFrame = frame;
-        frame = createImage(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_3BYTE_BGR));
+        image = createImage(new BufferedImage(SettingsManager.getResolutionX(), SettingsManager.getResolutionY(), BufferedImage.TYPE_3BYTE_BGR));
         pixelsLeft = w * h;
     }
 
     // Example from https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src/main/java/io/humble/video/demos/RecordAndEncodeVideo.java
 
     private void beginVideo() {
-        final Rational framerate = Rational.make(1, at.getFramerate());
+        writer = new BufferedImageWriter("E:\\Programowanie\\mandelbrot\\ffmpeg.exe", w, h, at.getFramerate());
+//        final Rational framerate = Rational.make(1, at.getFramerate());
 
         /** First we create a muxer using the passed in filename and formatname if given. */
-        muxer = Muxer.make("output.mp4", null, "mp4");
+//        muxer = Muxer.make("output.mp4", null, "mp4");
 
         /** Now, we need to decide what type of codec to use to encode video. Muxers
          * have limited sets of codecs they can use. We're going to pick the first one that
          * works, or if the user supplied a codec name, we're going to force-fit that
          * in instead.
          */
-        final MuxerFormat format = muxer.getFormat();
-        final Codec codec;
-        codec = Codec.findEncodingCodec(format.getDefaultVideoCodecId());
+//        final MuxerFormat format = muxer.getFormat();
+//        final Codec codec;
+//        codec = Codec.findEncodingCodec(format.getDefaultVideoCodecId());
 
         /**
          * Now that we know what codec, we need to create an encoder
          */
-        encoder = Encoder.make(codec);
+//        encoder = Encoder.make(codec);
 
         /**
          * Video encoders need to know at a minimum:
@@ -122,35 +128,35 @@ public class AnimationRenderingThread extends RenderingManagerThread {
          * be written needed this). There are many other options you can set on an encoder, but we're
          * going to keep it simpler here.
          */
-        encoder.setWidth(w);
-        encoder.setHeight(h);
+//        encoder.setWidth(w);
+//        encoder.setHeight(h);
         // We are going to use 420P as the format because that's what most video formats these days use
-        final PixelFormat.Type pixelFormat = PixelFormat.Type.PIX_FMT_YUV420P;
-        encoder.setPixelFormat(pixelFormat);
-        encoder.setTimeBase(framerate);
+//        final PixelFormat.Type pixelFormat = PixelFormat.Type.PIX_FMT_YUV420P;
+//        encoder.setPixelFormat(pixelFormat);
+//        encoder.setTimeBase(framerate);
 
         /** An annoynace of some formats is that they need global (rather than per-stream) headers,
          * and in that case you have to tell the encoder. And since Encoders are decoupled from
          * Muxers, there is no easy way to know this beyond
          */
-        if (format.getFlag(MuxerFormat.Flag.GLOBAL_HEADER))
-            encoder.setFlag(Encoder.Flag.FLAG_GLOBAL_HEADER, true);
+//        if (format.getFlag(MuxerFormat.Flag.GLOBAL_HEADER))
+//            encoder.setFlag(Encoder.Flag.FLAG_GLOBAL_HEADER, true);
 
         /** Open the encoder. */
-        encoder.open(null, null);
+//        encoder.open(null, null);
 
 
         /** Add this stream to the muxer. */
-        muxer.addNewStream(encoder);
+//        muxer.addNewStream(encoder);
 
         /** And open the muxer for business. */
-        try {
-            muxer.open(null, null);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            muxer.open(null, null);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 //        BufferedImage.TYPE_3BYTE_BGR;
 //        BufferedImage.TYPE_INT_ARGB;
         /** Next, we need to make sure we have the right MediaPicture format objects
@@ -159,20 +165,25 @@ public class AnimationRenderingThread extends RenderingManagerThread {
          * codecs use some variant of YCrCb formatting. So we're going to have to
          * convert. To do that, we'll introduce a MediaPictureConverter object later. object.
          */
-        converter = null;
-        picture = MediaPicture.make(
-                encoder.getWidth(),
-                encoder.getHeight(),
-                pixelFormat);
-        picture.setTimeBase(framerate);
-
+//        converter = null;
+//        picture = MediaPicture.make(
+//                encoder.getWidth(),
+//                encoder.getHeight(),
+//                pixelFormat);
+//        picture.setTimeBase(framerate);
 
         /** Now begin our main loop of taking screen snaps.
          * We're going to encode and then write out any resulting packets. */
 
+        try {
+            writer.initializeWriting();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         at.setMaxIterations(frameData.length);
 
-        packet = MediaPacket.make();
+//        packet = MediaPacket.make();
     }
 
     public void saveImageToVideo(BufferedImage screen) {
@@ -183,16 +194,24 @@ public class AnimationRenderingThread extends RenderingManagerThread {
             screen = lastFrame;
         }
 
-        /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
-        if (converter == null)
-            converter = MediaPictureConverterFactory.createConverter(screen, picture);
-        converter.toPicture(picture, screen, imageIndex);
+        screen = convertToType(screen, BufferedImage.TYPE_3BYTE_BGR);
 
-        do {
-            encoder.encode(packet, picture);
-            if (packet.isComplete())
-                muxer.write(packet, false);
-        } while (packet.isComplete());
+        try {
+            writer.writeImage(screen);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        /** This is LIKELY not in YUV420P format, so we're going to convert it using some handy utilities. */
+//        if (converter == null)
+//            converter = MediaPictureConverterFactory.createConverter(screen, picture);
+//        converter.toPicture(picture, screen, imageIndex);
+
+//        do {
+//            encoder.encode(packet, picture);
+//            if (packet.isComplete())
+//                muxer.write(packet, false);
+//        } while (packet.isComplete());
 //        at.setProgress(imageIndex);
         imageIndex++;
     }
@@ -202,14 +221,19 @@ public class AnimationRenderingThread extends RenderingManagerThread {
          * So, they need to be flushed as well. As with the decoders, the convention is to pass in a null
          * input until the output is not complete.
          */
-        do {
-            encoder.encode(packet, null);
-            if (packet.isComplete())
-                muxer.write(packet,  false);
-        } while (packet.isComplete());
+        try {
+            writer.completeWriting();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        do {
+//            encoder.encode(packet, null);
+//            if (packet.isComplete())
+//                muxer.write(packet,  false);
+//        } while (packet.isComplete());
 
         /** Finally, let's clean up after ourselves. */
-        muxer.close();
+//        muxer.close();
     }
 
     private void imagesToVideo() {

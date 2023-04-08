@@ -13,7 +13,7 @@ public class RenderingEngineSelectComboBox extends JPanel {
     public JComboBox<Object> comboBox;
 
     public RenderingEngineSelectComboBox() {
-        threadHashMap.put("Double Double", ThreadType.BIGDECIMAL);
+//        threadHashMap.put("Double Double", ThreadType.BIGDECIMAL);
         threadHashMap.put("Double", ThreadType.DOUBLE);
         threadHashMap.put("Float", ThreadType.FLOAT);
         threadHashMap.put("Palette", ThreadType.PALETTE);

@@ -40,11 +40,11 @@ public class PaletteSelectComboBox extends JPanel {
                 new Color(159, 243, 230),
                 new Color(245, 197, 1)
         ));
-        paletteHashMap.put("Looping Test", new LoopingColorPalette(512, 2,
-                new Color(1, 6, 97),
-                new Color(159, 243, 230),
-                new Color(245, 197, 1)
-        ));
+//        paletteHashMap.put("Looping Test", new LoopingColorPalette(512, 2,
+//                new Color(1, 6, 97),
+//                new Color(159, 243, 230),
+//                new Color(245, 197, 1)
+//        ));
         paletteHashMap.put("Test", new ExtendedConstantFillColorPalette(
                 512,
                 new Color(0, 0, 0),
