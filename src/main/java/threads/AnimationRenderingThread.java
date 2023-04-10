@@ -99,7 +99,7 @@ public class AnimationRenderingThread extends RenderingManagerThread {
     // Example from https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src/main/java/io/humble/video/demos/RecordAndEncodeVideo.java
 
     private void beginVideo() {
-        writer = new BufferedImageWriter("E:\\Programowanie\\mandelbrot\\ffmpeg.exe", w, h, at.getFramerate());
+        writer = new BufferedImageWriter("ffmpeg", w, h, at.getFramerate());
 //        final Rational framerate = Rational.make(1, at.getFramerate());
 
         /** First we create a muxer using the passed in filename and formatname if given. */
