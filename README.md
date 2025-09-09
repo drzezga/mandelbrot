@@ -1,34 +1,34 @@
 # Mandelbrot
-Mikołaj Hudko
+App for visualizing the Mandelbrot set and creating videos originally written by Mikołaj Hudko in middle school while learning java. Later fixed up for a university course.
 
-## Co to?
-Program do robienia zdjęcć oraz animacji wizualizacji zbioru Mandelbrota.
+## Prerequisites
+ - Java 1.8
+ - Maven
+ - ffmpeg (best copied into the project root dir)
 
-## Obsługa
-Na środku widoczne jest obecnie zrobione zdjęcie. Można sterować nim za pomocą następujących przycisków:
- * `WASD` do poruszania się,
- * `R` do zbliżenia, `F` do oddalenia,
- * `Q` do ponownego zrobienia zdjęcia,
- * `X` do zwiększenia dokładności obliczania, `Z` do zmniejszenia,
- * `Y` do zmieniania między wyświetlaniem zbioru Julii a Mandelbrota
+## Controls when focusing the preview pane
+ * `WASD` to move the preview,
+ * `R` to zoom in, `F` to zoom out,
+ * `Q` to rerender,
+ * `X` to increase iteration (accuracy of calculation), `Z` to decrease,
+ * `Y` to swap between rendering the Mandelbrot and Julia sets
 
-### Zakładka `Image`
-Po lewej części znajdują się ustawienia rozdzielczości obrazu. Po prawej są przyciski do ponownego zrobienia zdjęcia oraz zapisania obecnego.
+### `Image` tab
+Contains resolution presets and image manipulation options
 
-### Zakładka `Render settings`
-Tutaj znajdują się ustawienia zdjęcia. Po kolei:
- * Sposób tworzenia zdjęcia:
-   * Zbiór Mandelbrota z dokładnością float
-   * Zbiór Mandelbrota z dokładnością double
-   * Zbiór Julii z dokładnością double
-   * Wyświetlanie obecnej palety kolorów
- * Wyświetlanie celownika na środku ekranu w celach demonstracyjnych
- * Opcje supersamplingu, czyli robienia zdjęcia w wyższej rozdzielczości, a następnie zmniejszania go w celu zwiększenia jakości.
- * Algorytm kolorowania (opcja `Smooth` nie działa dobrze ze zbiorami Julii) oraz paleta kolorów
+### `Render settings` tab
+Contains settings for:
+ * Render engine:
+   * Mandelbrot set with float precision
+   * Mandelbrot set with double precision
+   * Julia set with double precision
+   * Color palette display
+ * Crosshair display
+ * Image supersampling.
+ * Coloring algorithm (the `Smooth` option doesn't work well with Julia sets) and color palette
 
-### Zakładka `Position`
-Tutaj znajdują się wartości części rzeczywistej i urojonej środka zdjęcia oraz przybliżenie i dokładność obliczania `threshold`.
+### `Position` tab
+Precise values of the parameters used for rendering. All can be set manually
 
-### Zakładka `Animation`
-Tutaj znajduje się edytor animacji. Na górze są na linii czasowej punkty, między którymi będzie poruszała się kamera. Można je przesuwać, oraz edytować po kliknięciu na nich `ppm`. Opcją `Set` można zmienić opcje obrazu tego punktu na obecne. Opcją `Go` można ustawić obecne opcje obrazu na te z punktu.
-Na dole znajdują się przyciski do kontrolowania linią czasową, liczba klatek na sekundę oraz przycisk do nagrania filmu.
+### `Animation` tab
+This tab is used for creating animations with ffmpeg. Create camera keyframes on the timeline and edit by right clicking. Move them by dragging and resize the timeline by scrolling. You can set the current position and parameters by clicking `Set` and preview a keyframe by clicking `Go`.
